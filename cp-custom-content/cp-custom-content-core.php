@@ -43,10 +43,15 @@ class CP_Custom_Content_Core
 		add_action('autosave_generate_nonces', array($instance, 'autosave_generate_nonces'));
 		add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
 		add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
-		/**
-		 * @todo hopefully this can be removed with a fix to query.php in WP 3.0
-		 */
-		add_action('parse_query', array($instance, 'on_parse_query'), 10, 1);
+		
+		//allow sites without pretty urls to show custom post_types
+		if('' == get_option('permalink_structure'))
+		{
+			/**
+			 * @todo hopefully this can be removed with a fix to query.php in WP 3.0
+			 */
+			add_action('parse_query', array($instance, 'on_parse_query'), 10, 1);
+		}
 	}
 	
 	/**
