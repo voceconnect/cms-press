@@ -603,7 +603,8 @@ class Dynamic_Content_Builder
 					</td>
 				</tr>
 			</table>
-			<h3><?php _e('Features')?></h3>
+			<br />
+			<h3><?php _e('Supported Features')?></h3>
 			<h4><?php _e('Standard Features')?></h4>
 			<table class="form-table">
 				<?php	$standard_features = $this->get_standard_features()?>
