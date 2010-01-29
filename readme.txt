@@ -26,9 +26,8 @@ custom taxonomies, a user can tag or categorize content separate from the defaul
 
 = Why would I need this plugin? =
 
-For most sites posts, pages, categories and tags will be enough to separate the content to the extent the user desires.  However, 
-there are some sites that need the content to be further compartmentalized, like a corporate site having both a blog and a news
-section.  
+For most sites, having posts and pages and categories and tags will be enough to do everything the user wants.  However, there are some
+sites that need the content to be further separated.  
 
 = What if I'm running WordPress v2.8.6 or below? =
 
