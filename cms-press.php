@@ -8,10 +8,30 @@
 Plugin Name: CMS Press
 Plugin URI: http://voceconnect.com
 Description: Adds ability to create custom post_types and taxonomies
-Author: Michael Pretty
+Author: Michael Pretty (prettyboymp)
 Version: 0.01
 Author URI: http://voceconnect.com
 */
+
+if(!function_exists('get_wp_version'))
+{
+	/**
+	 * Returns the current WordPress version.  This is used to avoid the constant use of globals.
+	 *
+	 * @return string
+	 */
+	function get_wp_version()
+	{
+		global $wp_version;
+		return $wp_version;
+	}
+}
+
+if(!version_compare(get_wp_version(), '2.9', '>='))
+{
+	trigger_error('CMS Press requires WP version 2.9 or higher', E_USER_NOTICE);
+	return;
+}
 
 define('CP_BASE_DIR', dirname(__FILE__));
 define('CP_BASE_URL', str_replace(str_replace('\\', '/',ABSPATH), site_url().'/', str_replace('\\', '/', dirname(__FILE__))));

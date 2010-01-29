@@ -37,12 +37,15 @@ class CP_Custom_Content_Core
 	{
 		$instance = self::GetInstance();
 		add_action ( 'init', array ($instance, 'setup_custom_content' ), 1 );
-		add_action ( 'admin_menu', array ($instance, 'add_menu_items' ) );
-		add_filter('screen_meta_screen', array($instance, 'filter_screen_meta_screen'));
-		add_action('wp_ajax_submit_custom_content', array($instance, 'ajax_submit_custom_content'));
-		add_action('autosave_generate_nonces', array($instance, 'autosave_generate_nonces'));
-		add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
-		add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
+		if(version_compare(get_wp_version(), '3.0', '<'))
+		{
+			add_action ( 'admin_menu', array ($instance, 'add_menu_items' ) );
+			add_filter('screen_meta_screen', array($instance, 'filter_screen_meta_screen'));
+			add_action('wp_ajax_submit_custom_content', array($instance, 'ajax_submit_custom_content'));
+			add_action('autosave_generate_nonces', array($instance, 'autosave_generate_nonces'));
+			add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
+			add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
+		}
 		
 		//allow sites without pretty urls to show custom post_types
 		if('' == get_option('permalink_structure'))
@@ -89,10 +92,10 @@ class CP_Custom_Content_Core
 			$handler->add_custom_hooks();
 			if(function_exists('register_post_type'))
 			{
-				register_post_type($handler->get_content_type(), array('label' => $handler->get_type_label(), 'exclude_from_search' => $handler->get_type_exclude_from_search(), '_edit_link' => 'admin.php?page=cp-custom-content/manage-'.$handler->get_content_type().'.php&post=%d', 'public' => $handler->get_type_is_public(), 'hierarchical'=> $handler->get_type_is_hierarchical(), 'capability_type' => $handler->get_type_capability_type(), 'supports'=>$handler->get_type_supports()));
+				register_post_type($handler->get_content_type(), array('label' => $handler->get_type_label(), 'exclude_from_search' => $handler->get_type_exclude_from_search(), '_edit_link' => $handler->get_type_edit_link(), 'public' => $handler->get_type_is_public(), 'hierarchical'=> $handler->get_type_is_hierarchical(), 'capability_type' => $handler->get_type_capability_type(), 'supports'=>$handler->get_type_supports()));
 			}
 		}
-
+		
 		add_action('save_post', array($this, 'on_save_post'), 10, 2);
 		add_filter('query_vars', array($this, 'query_vars'), 10, 1);
 

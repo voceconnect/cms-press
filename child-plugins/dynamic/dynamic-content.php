@@ -19,7 +19,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('post-thumbnails' => true, 'excerpts' => true, 'trackbacks' => true, 'custom-fields' => true, 'comments' => true, 'revisions' => true)
+			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions')
 		);
 		$this->settings = shortcode_atts($default_settings, $settings);
 	}
@@ -613,7 +613,7 @@ class Dynamic_Content_Builder
 					<tr valign="top">
 						<th scope="row"><label for="supports_<?php echo $feature_key?>"><?php echo $feature['label'];?></label></th>
 						<td>
-						<input type="checkbox" id="supports_<?php echo $feature_key?>" name="supports[<?php echo $feature_key?>]" value="1"<?php echo isset($supported_features[$feature_key]) ? ' checked="checked"' : ''?> />
+						<input type="checkbox" id="supports_<?php echo $feature_key?>" name="supports[]" value="<?php echo $feature_key?>"<?php echo in_array($feature_key, $supported_features) ? ' checked="checked"' : ''?> />
 						<?php if(!empty($feature['description'])): ?>
 							<span class="description"><?php echo $feature['description']?></span>
 						<?php endif; ?>
