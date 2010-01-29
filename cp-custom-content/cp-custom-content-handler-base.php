@@ -78,6 +78,15 @@ abstract class CP_Custom_Content_Handler_Base
 		return false;
 	}
 	
+	public function get_type_edit_link()
+	{
+		if(version_compare(get_wp_version(), '3.0', '<'))
+		{
+			return 'admin.php?page=cp-custom-content/manage-'.$this->get_content_type().'.php&post=%d';
+		}
+		return 'post.php?post=%d';
+	}
+	
 	/**
 	 * Returns the url to the icon for the content type
 	 *
@@ -90,7 +99,7 @@ abstract class CP_Custom_Content_Handler_Base
 	
 	public function get_type_supports()
 	{
-		return array('post-thumbnails' => true, 'excerpts' => true, 'trackbacks' => true, 'custom-fields' => true, 'comments' => true, 'revisions' => true);
+		return array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions');
 	}
 	
 	/**
