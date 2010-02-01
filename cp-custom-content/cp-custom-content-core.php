@@ -116,9 +116,10 @@ class CP_Custom_Content_Core
 		}
 		
 		/**
-		 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674-183.patch
+		 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
 		 */
-		//add_filter('query_vars', array($this, 'query_vars'), 10, 1);
+		add_filter('query_vars', array($this, 'query_vars'), 10, 1);
+		add_action('parse_request', array($this, 'parse_request'), 10, 1);
 
 		//flush the rewrite rules if new content_types were added
 		if(($has_new_types) && !function_exists('wpcom_is_vip'))
@@ -131,6 +132,8 @@ class CP_Custom_Content_Core
 	/**
 	 * Adds post_type query_var
 	 *
+	 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
+	 * 
 	 * @param array $query_vars
 	 * @return array
 	 */
@@ -141,6 +144,24 @@ class CP_Custom_Content_Core
 			$query_vars[] = 'post_type';
 		}
 		return $query_vars;
+	}
+	
+	/**
+	 * Limits the post_type in the query_vars to ones that should be publicly queryable
+	 *
+	 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
+	 * 
+	 * @param WP $wp
+	 */
+	public function parse_request($wp)
+	{
+		if(isset($wp->query_vars['post_type']))
+		{
+			if( ($handler = $this->get_content_handler($wp->query_vars['post_type'])) && !$handler->get_type_publicly_queryable())
+			{
+				unset($wp->query_vars['post_type']);
+			}
+		}
 	}
 
 	/**
