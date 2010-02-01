@@ -33,6 +33,11 @@ class CP_Custom_Content_Core
 		return self::$instance;
 	}
 	
+	/**
+	 * Initializes the plugin
+	 * calls 'setup_custom_content' //used for registering content types
+	 *
+	 */
 	public static function Initialize()
 	{
 		$instance = self::GetInstance();
@@ -44,6 +49,7 @@ class CP_Custom_Content_Core
 			add_action('wp_ajax_submit_custom_content', array($instance, 'ajax_submit_custom_content'));
 			add_action('autosave_generate_nonces', array($instance, 'autosave_generate_nonces'));
 			add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
+			
 			add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
 		}
 		
@@ -75,8 +81,12 @@ class CP_Custom_Content_Core
 	{
 		global $wp_rewrite;
 
+		//child plugins should hook into this action to register their handler
 		do_action ( 'setup_custom_content' );
 
+		if(!count($this->content_handlers))
+			return;
+		
 		//check if new post_types were added.
 		$prev_installed_post_types = get_option('installed_post_types');
 		$installed_post_types = array_keys($this->content_handlers);
@@ -92,14 +102,25 @@ class CP_Custom_Content_Core
 			$handler->add_custom_hooks();
 			if(function_exists('register_post_type'))
 			{
-				register_post_type($handler->get_content_type(), array('label' => $handler->get_type_label(), 'exclude_from_search' => $handler->get_type_exclude_from_search(), '_edit_link' => $handler->get_type_edit_link(), 'public' => $handler->get_type_is_public(), 'hierarchical'=> $handler->get_type_is_hierarchical(), 'capability_type' => $handler->get_type_capability_type(), 'supports'=>$handler->get_type_supports()));
+				$args = array(
+					'label' => $handler->get_type_label(), 
+					'exclude_from_search' => $handler->get_type_exclude_from_search(), 
+					'_edit_link' => $handler->get_type_edit_link(), 
+					'public' => $handler->get_type_is_public(), 
+					'hierarchical'=> $handler->get_type_is_hierarchical(), 
+					'capability_type' => $handler->get_type_capability_type(), 
+					'supports'=>$handler->get_type_supports());
+				register_post_type($handler->get_content_type(), $args);
 			}
 		}
 		
-		add_action('save_post', array($this, 'on_save_post'), 10, 2);
-		add_filter('query_vars', array($this, 'query_vars'), 10, 1);
+		/**
+		 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674-183.patch
+		 */
+		//add_filter('query_vars', array($this, 'query_vars'), 10, 1);
 
-		if(($has_new_types)&& !function_exists('wpcom_is_vip'))
+		//flush the rewrite rules if new content_types were added
+		if(($has_new_types) && !function_exists('wpcom_is_vip'))
 		{
 			$wp_rewrite->flush_rules();
 			update_option('installed_post_types', $installed_post_types);
@@ -108,8 +129,6 @@ class CP_Custom_Content_Core
 
 	/**
 	 * Adds post_type query_var
-	 *
-	 * @todo pass off to handlers to add their own query vars if needed
 	 *
 	 * @param array $query_vars
 	 * @return array
@@ -161,10 +180,29 @@ class CP_Custom_Content_Core
 	}
 
 	/**
+	 * Filter to the parsed query vars that allows custom post_types to display when ?p=# permastrcture is used 
+	 * 
+	 * @todo check on adoption of http://core.trac.wordpress.org/attachment/ticket/9674/9674-183.patch as it inclusion
+	 * deprecates this function
+	 * 
+	 * @param WP_Query $wp_query
+	 */
+	public function on_parse_query(&$wp_query)
+	{
+		if ( '' == $wp_query->query_vars['attachment'] && empty($wp_query->query_vars['attachment_id']) && '' == $wp_query->query_vars['name'] && $wp_query->query_vars['p'] && empty($wp_query->query_vars['post_type'])) {
+			$wp_query->query_vars['post_type'] = 'any';
+		}
+	}
+
+	/**
+	 * BEGIN WP 2.9 ONLY METHODS
+	 */
+	
+	/**
 	 * Adds the menu items for the registered content types
-	 *
-	 * @todo replace edit_pages permission with permission specific to content type
-	 *
+	 * 
+	 * This is only used by WP 2.9
+	 * 
 	 */
 	public function add_menu_items()
 	{
@@ -182,7 +220,7 @@ class CP_Custom_Content_Core
 
 		}
 	}
-
+	
 	/**
 	 * Returns the admin url for creating a new custom content item of the given post_type
 	 *
@@ -289,7 +327,7 @@ class CP_Custom_Content_Core
 		}
 		die(0);
 	}
-
+	
 	/**
 	 * generates nonces for autosaving custom post_types
 	 *
@@ -309,19 +347,7 @@ class CP_Custom_Content_Core
 	}
 	
 	/**
-	 * Filter to the parsed query vars that allows custom post_types to display when ?p=# permastrcture is used 
-	 *
-	 * @param unknown_type $wp_query
-	 */
-	public function on_parse_query(&$wp_query)
-	{
-		if ( '' == $wp_query->query_vars['attachment'] && empty($wp_query->query_vars['attachment_id']) && '' == $wp_query->query_vars['name'] && $wp_query->query_vars['p'] && empty($wp_query->query_vars['post_type'])) {
-			$wp_query->query_vars['post_type'] = 'any';
-		}
-	}
-
-	/**
-	 * Prints the manage rows the content type
+	 * Prints the manage rows for the content type
 	 *
 	 * @param string $post_type
 	 * @param array $posts
@@ -335,31 +361,9 @@ class CP_Custom_Content_Core
 			$handler->manage_rows($posts, $pagenum, $per_page);
 		}
 	}
-
-	/**
-	 * Base hook for saving meta values
-	 * @todo add check for DOING_AJAX once postback is changed from the admin_ajax page
-	 *
-	 * @param int $post_id
-	 * @param object $post
-	 */
-	public function on_save_post($post_id, $post)
-	{
-		if(!((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || (defined('DOING_CRON') && DOING_CRON)))
-		{
-			if ( $real_post_id = wp_is_post_revision($post_id) )
-			{
-				//don't save meta values when saving revisions
-				return;
-			}
-			$post_type = get_post_type($post_id);
-			do_action("save_custom_".$post_type, $post_id, $post);
-		}
-	}
-
+	
 	/**
 	 * Adds custom capabilites needed for core metaboxes
-	 * @todo this may not be used.  need to look into this further
 	 * 
 	 * @param array $allcaps
 	 * @param array $caps
@@ -377,6 +381,11 @@ class CP_Custom_Content_Core
 		}
 		return $allcaps;
 	}
+	
+
+	/**
+	 * END WP 2.9 ONLY METHODS
+	 */
 
 }
 
