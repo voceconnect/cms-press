@@ -78,6 +78,21 @@ abstract class CP_Custom_Content_Handler_Base
 		return false;
 	}
 	
+	/**
+	 * returns whether the post_type should be allowed as post_type public query_var
+	 *
+	 * @return bool
+	 */
+	public function get_type_publicly_queryable()
+	{
+		return false;
+	}
+	
+	public function get_type_is_publicly_queryable()
+	{
+		return false;
+	}
+	
 	public function get_type_edit_link()
 	{
 		if(version_compare(get_wp_version(), '3.0', '<'))

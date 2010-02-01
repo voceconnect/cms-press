@@ -15,6 +15,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'label' => $content_type,
 			'label_plural' => $content_type,
 			'exclude_from_search' => false,
+			'publicly_queryable' => false,
 			'public' => true,
 			'hierarchical' => false,
 			'capability_type' => 'post',
@@ -81,6 +82,16 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	public function get_type_exclude_from_search()
 	{
 		return $this->get_setting('exclude_from_search', false);
+	}
+	
+	/**
+	 * returns whether the post_type should be included in search results
+	 *
+	 * @return bool
+	 */
+	public function get_type_publicly_queryable()
+	{
+		return $this->get_setting('publicly_queryable', false);
 	}
 	
 	public function get_type_is_public()
@@ -590,6 +601,18 @@ class Dynamic_Content_Builder
 				</tr>
 				*/
 				?>
+				<tr valign="top">
+					<th scope="row"><?php _e('Is Publicly Queryable?'); ?></th>
+					<td>
+						<label for="publicly_queryable_yes"><?php echo ('Yes') ?></label>
+						<input type="radio" id="publicly_queryable" name="publicly_queryable" value="1"<?php echo $content_handler->get_type_publicly_queryable() ? ' checked="checked"' : ''?> />
+						&nbsp; &nbsp;
+						<label for="publicly_queryable_no"><?php echo ('No') ?></label>
+						<input type="radio" id="publicly_queryable" name="publicly_queryable" value="0"<?php echo !$content_handler->get_type_publicly_queryable() ? ' checked="checked"' : ''?> />
+						&nbsp; &nbsp;
+						<span class="description"><?php _e('Can this post_type be accessed via URL?')?></span>
+					</td>
+				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e('Exclude from search results?'); ?></th>
 					<td>

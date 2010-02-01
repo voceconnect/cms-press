@@ -104,6 +104,7 @@ class CP_Custom_Content_Core
 			{
 				$args = array(
 					'label' => $handler->get_type_label(), 
+					'publicly_queryable' => $handler->get_type_publicly_queryable(),
 					'exclude_from_search' => $handler->get_type_exclude_from_search(), 
 					'_edit_link' => $handler->get_type_edit_link(), 
 					'public' => $handler->get_type_is_public(), 
