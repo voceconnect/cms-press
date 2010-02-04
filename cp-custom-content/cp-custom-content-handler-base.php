@@ -20,23 +20,20 @@ abstract class CP_Custom_Content_Handler_Base
 	 * @return string
 	 */
 	abstract public function get_content_type();
+	
 	/**
 	 * Returns the name of the custom content
 	 *
 	 * @return string
 	 */
 	abstract public function get_type_label();
+	
 	/**
 	 * Returns the plural form of the custom content name
 	 *
 	 * @return string
 	 */
 	abstract public function get_type_label_plural();
-	
-	public function get_type_permalink_base()
-	{
-		return $this->get_content_type();
-	}
 	
 	/**
 	 * Returns whether the post_type is public/Shows in admin menu
@@ -88,18 +85,28 @@ abstract class CP_Custom_Content_Handler_Base
 		return false;
 	}
 	
+	/**
+	 * Returns whether the content type can be queried publicly
+	 *
+	 * @return bool
+	 */
 	public function get_type_is_publicly_queryable()
 	{
 		return false;
 	}
 	
+	/**
+	 * returns the edit link for the content type
+	 *
+	 * @return unknown
+	 */
 	public function get_type_edit_link()
 	{
 		if(version_compare(get_wp_version(), '3.0', '<'))
 		{
 			return 'admin.php?page=cp-custom-content/manage-'.$this->get_content_type().'.php&post=%d';
 		}
-		return 'post.php?post=%d';
+		return false;
 	}
 	
 	/**
@@ -112,9 +119,19 @@ abstract class CP_Custom_Content_Handler_Base
 		return '';
 	}
 	
+	/**
+	 * Returns an array of features the content type supports
+	 *
+	 * @return array
+	 */
 	public function get_type_supports()
 	{
 		return array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions');
+	}
+	
+	public function get_type_permastructure()
+	{
+		return array('identifier' => $this->get_content_type(), 'structure' => '%identifier%/'.get_option('permalink_structure'));
 	}
 	
 	/**
@@ -133,61 +150,130 @@ abstract class CP_Custom_Content_Handler_Base
 	 */
 	public final function add_base_hooks()
 	{
-		add_action( 'future_'.$this->get_content_type(), '_future_post_hook', 5, 2 );
-
-		add_filter('post_link', array($this, 'post_link'), 10, 3);
-		add_filter("single_template", array($this, 'single_template'), 10, 1);
-		add_filter("date_template", array($this, 'date_template'), 10, 1);
-		add_filter("search_template", array($this, 'search_template'), 10, 1);
+		//add permastruct handling
+		if(version_compare(get_wp_version(), '3.0', '>='))
+		{
+			add_filter('post_type_link', array($this, 'post_link'), 10, 3);
+		}
+		else 
+		{
+			add_filter('post_link', array($this, 'post_link'), 10, 3);
+		}
 		
+		/* @todo deprecate
 		if(!function_exists('wpcom_is_vip'))  //VIP requires hardcoded rewrite rules
 		{
 			add_filter('generate_rewrite_rules', array($this, 'add_rewrite_rules'), 10, 1);
 		}
+		*/
 	}
 	
 	/**
-	 * Sets the columns for the edit/add page for the content type.  Default is 2
+	 * Registers the rewrite rules for the content_type with the system.
 	 *
-	 * @param array $columns
-	 * @param string $screen
-	 * @return array
 	 */
-	public function filter_screen_layout_columns($columns, $screen)
+	public function add_rewrite_rules()
 	{
-		$columns[$screen] = 2;
-		return $columns;
-	}
-
-	/**
-	 * Adds rewrite rules for the content type, only handles /%year%/%month%/%day%/%postname%/ for now
-	 *
-	 * @todo add handling for more flexible url structures
-	 *
-	 * @param array $rewrites
-	 */
-	public function add_rewrite_rules($wp_rewrite)
-	{
-		$permalink = get_option('permalink_structure');
-		if('' != $permalink) //only add rules if they are not using the id past permalink structure
+		if($this->get_type_publicly_queryable())
 		{
-			$new_rules = array(
-				$this->get_type_permalink_base().'/([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)(/[0-9]+)?/?$'
-					=> 'index.php?post_type='.$this->get_content_type().'&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&page=$matches[5]',
-				$this->get_type_permalink_base().'/([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/page/?([0-9]{1,})/?$'
-					=> 'index.php?post_type='.$this->get_content_type().'&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&paged=$matches[5]',
-				$this->get_type_permalink_base().'/([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/comment-page-([0-9]{1,})/?$'
-					=> 'index.php?post_type='.$this->get_content_type().'&year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&cpage=$matches[5]',
+			global $wp_rewrite;
+			$permastructure = $this->get_type_permastructure();
+			$structure = $permastructure['structure'];
+			$structure = str_replace('%identifier%', $permastructure['identifier'], $structure);
+			$rewrite_rules = $wp_rewrite->generate_rewrite_rule($structure);
+			
+			//add dates base urls if structure contains them
+			if(false !== strpos($structure, '%year%'))
+			{
+				//remove single identifiers from structure
+				$date_structure = str_replace(array('%postname%', '%post_id%', '%second%'), '', $structure);
+				if(false !== strpos($structure, '%monthnum%'))
+				{
+					if(false !== strpos($structure, '%day%'))
+					{
+						if(false !== strpos($structure, '%hour%'))
+						{
+							if(false !== strpos($structure, '%minute%'))
+							{
+								$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rule($date_structure), $rewrite_rules);
+								$date_structure = str_replace('%minute%', '', $date_structure);
+								$date_structure = preg_replace('#/+#', '/', $date_structure);
+							}
+							$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_DATE), $rewrite_rules);
+							$date_structure = str_replace('%hour%', '', $date_structure);
+							$date_structure = preg_replace('#/+#', '/', $date_structure);
+						}
+						$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_DAY), $rewrite_rules);
+						$date_structure = str_replace('%day%', '', $date_structure);
+						$date_structure = preg_replace('#/+#', '/', $date_structure);
+					}
+					$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_MONTH), $rewrite_rules);
+					$date_structure = str_replace('%monthnum%', '', $date_structure);
+					$date_structure = preg_replace('#/+#', '/', $date_structure);
+				}
+				$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_YEAR), $rewrite_rules);
+			}
+			//var_dump($rewrite_rules);
+			foreach($rewrite_rules as $regex => $redirect)
+			{
+				$redirect .= '&post_type='.$this->get_content_type();
+				if(0 < preg_match_all('@\$([0-9])@', $redirect, $matches))
+				{
+					for($i = 0; $i < count($matches[0]); $i++)
+					{
+						$redirect = str_replace($matches[0][$i], '$matches['.$matches[1][$i].']', $redirect);
+					}
+				}
+				add_rewrite_rule($regex, $redirect, 'top');
+			}
+		}
+	}
 	
-				$this->get_type_permalink_base().'/([0-9]{4})/([0-9]{1,2})/page/?([0-9]{1,})/?$'
-					=> 'index.php?post_type='.$this->get_content_type().'&year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
-				$this->get_type_permalink_base().'/([0-9]{4})/([0-9]{1,2})/?$'
-					=> 'index.php?post_type='.$this->get_content_type().'&year=$matches[1]&monthnum=$matches[2]'
-			);
-			$wp_rewrite->rules = array_merge($new_rules, $wp_rewrite->rules);
+	protected function get_date_permastruct()
+	{
+		$permastructure = $this->get_type_permastructure();
+		$structure = $permastructure['structure'];
+		var_dump($structure);
+		// The date permalink must have year, month, and day separated by slashes.
+		$endians = array('%year%/%monthnum%/%day%', '%day%/%monthnum%/%year%', '%monthnum%/%day%/%year%');
+
+		$date_structure = '';
+		$date_endian = '';
+
+		foreach ($endians as $endian) 
+		{
+		var_dump(" $structure ------ $endian");
+		var_dump(strpos($structure, $endian));
+			if (false !== strpos($structure, $endian)) 
+			{
+				$date_endian= $endian;
+				break;
+			}
+		}
+		var_dump($date_endian);
+		
+		if ( empty($date_endian) )
+		{
+			$date_endian = '%year%/%monthnum%/%day%';
+			$front = '%identifier/';
 		}
 
-		return $wp_rewrite;
+		// Do not allow the date tags and %post_id% to overlap in the permalink
+		// structure. If they do, move the date tags to $front/date/.
+		preg_match_all('/%.+?%/', $structure, $tokens);
+		$tok_index = 1;
+		foreach ( (array) $tokens[0] as $token) {
+			if ( ($token == '%post_id%') && ($tok_index <= 3) ) {
+				$front = $front . 'date/';
+				break;
+			}
+			$tok_index++;
+		}
+
+		$structure = $front . $date_endian;
+var_dump($date_structure);
+die();
+		return $this->date_structure;
 	}
 	
 	/**
@@ -199,25 +285,66 @@ abstract class CP_Custom_Content_Handler_Base
 	 * @param bool $leavename
 	 * @return string
 	 */
-	public function post_link($permalink, $post, $leavename)
+	public function post_link($permalink, $post, $leavename = false)
 	{
-		if('' != get_option('permalink_structure') && $this->get_content_type() == $post->post_type )
+		if ( is_object($id) && isset($id->filter) && 'sample' == $id->filter ) {
+		$post = $id;
+		} else {
+			$post = &get_post($id);
+		}
+	
+		if ( empty($post->ID) || $this->get_content_type() != $post->post_type ) return $permalink;
+		
+		$rewritecode = array(
+			'%identifier%',
+			'%year%',
+			'%monthnum%',
+			'%day%',
+			'%hour%',
+			'%minute%',
+			'%second%',
+			$leavename? '' : '%postname%',
+			'%post_id%',
+			'%category%',
+			'%author%',
+			$leavename? '' : '%pagename%',
+		);
+	
+		$permastructure = $this->get_type_permastructure();
+		$identifier = $permastructure['identifier'];
+		$permalink = $permastructure['structure'];
+	
+		if ( '' != $permalink && !in_array($post->post_status, array('draft', 'pending')) ) 
 		{
-			$permastruct = '/'.$this->get_content_type().'/%year%/%monthnum%/%day%/%postname%/';
-			$rewritecode = array(
-				'%year%',
-				'%monthnum%',
-				'%day%',
-				'%hour%',
-				'%minute%',
-				'%second%',
-				$leavename? '' : '%postname%',
-				'%post_id%',
-				$leavename? '' : '%pagename%',
-			);
 			$unixtime = strtotime($post->post_date);
+	
+			$category = '';
+			if ( strpos($permalink, '%category%') !== false ) {
+				$cats = get_the_category($post->ID);
+				if ( $cats ) {
+					usort($cats, '_usort_terms_by_ID'); // order by ID
+					$category = $cats[0]->slug;
+					if ( $parent = $cats[0]->parent )
+						$category = get_category_parents($parent, false, '/', true) . $category;
+				}
+				// show default category in permalinks, without
+				// having to assign it explicitly
+				if ( empty($category) ) {
+					$default_category = get_category( get_option( 'default_category' ) );
+					$category = is_wp_error( $default_category ) ? '' : $default_category->slug;
+				}
+			}
+	
+			$author = '';
+			if ( strpos($permalink, '%author%') !== false ) {
+				$authordata = get_userdata($post->post_author);
+				$author = $authordata->user_nicename;
+			}
+	
 			$date = explode(" ",date('Y m d H i s', $unixtime));
-			$rewritereplace = array(
+			$rewritereplace =
+			array(
+				$identifier,
 				$date[0],
 				$date[1],
 				$date[2],
@@ -226,65 +353,16 @@ abstract class CP_Custom_Content_Handler_Base
 				$date[5],
 				$post->post_name,
 				$post->ID,
+				$category,
+				$author,
 				$post->post_name,
 			);
-			$permalink = get_option('home') . str_replace($rewritecode, $rewritereplace, $permastruct);
+			$permalink = home_url( str_replace($rewritecode, $rewritereplace, $permalink) );
 			$permalink = user_trailingslashit($permalink, 'single');
-		}
-		else 
-		{
-			//$permalink = get_option('home').'/'.$this->get_content_type().'/?p='.$post->ID;
-		}
+		} 
 		return $permalink;
 	}
-
-	/**
-	 * Tries to rewrite single.php template to {post_type}.php
-	 *
-	 * @param string $template
-	 * @return string
-	 */
-	public function single_template($template)
-	{
-		global $wp_query;
-		if($this->get_content_type() == $wp_query->get_queried_object()->post_type)
-		{
-			return locate_template(array($this->get_content_type().'.php', 'single.php'));
-		}
-		return $template;
-	}
-
-	/**
-	 * Replaces date template with date-{post_type}.php
-	 *
-	 * @param string $template
-	 * @return string
-	 */
-	public function date_template($template)
-	{
-		if($this->get_content_type() == get_query_var('post_type'))
-		{
-			$template = locate_template(array('date-'.$this->get_content_type().'.php', 'date.php', 'index.php'));
-		}
-		return $template;
-	}
-
-	/**
-	 * Replaces search template with search-{post_type}.php
-	 *
-	 * @param unknown_type $template
-	 * @return unknown
-	 */
-	public function search_template($template)
-	{
-		global $wp_query;
-		if($this->get_content_type() == get_query_var('post_type'))
-		{
-			$template = locate_template(array('search-'.$this->get_content_type().'.php', 'search.php', 'index.php'));
-		}
-		return $template;
-	}
-
+	
 	/**
 	 * registers the current content handler.  Child plugins should
 	 * register this function to fire on the 'setup_custom_content' action
@@ -302,6 +380,110 @@ abstract class CP_Custom_Content_Handler_Base
 		CP_Custom_Content_Core::GetInstance()->register_custom_content_type($this);
 	}
 
+	/**
+	 * Adds metaboxes for the given post_type
+	 * @todo change this to run off of a setting driven dataset
+	 *
+	 */
+	protected function add_meta_boxes()
+	{
+		add_meta_box('submitdiv', __('Publish'), 'post_submit_meta_box', $this->get_content_type(), 'side', 'core');
+		add_meta_box( $this->get_content_type().'_slugdiv', __('Post Slug'), 'post_slug_meta_box', $this->get_content_type(), 'normal', 'core');
+
+		/**
+		 * @todo pending patch 'hidden_meta_boxes.patch' submitted to http://core.trac.wordpress.org/ticket/10437
+		 */
+		add_filter('get_hidden_meta_boxes', array($this, 'filter_hidden_meta_boxes'), 10, 2);
+
+		// add taxonomies
+		foreach ( get_object_taxonomies($this->get_content_type()) as $tax_name ) {
+			if ( !is_taxonomy_hierarchical($tax_name) ) {
+				$taxonomy = get_taxonomy($tax_name);
+				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
+				add_meta_box('tagsdiv-' . $tax_name, $label, 'post_tags_meta_box', $this->get_content_type(), 'side', 'core');
+			}
+			else
+			{
+				//@todo change this to use the built in taxonomy metabox if it exists
+				//setup category style taxonomy
+				$custom_taxonomy = CP_Custom_Taxonomy_Core::GetInstance()->get_handler($tax_name);
+				$taxonomy = get_taxonomy($tax_name);
+				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
+				add_meta_box('categorydiv-' . $tax_name, $label, array($custom_taxonomy, 'hierarchical_taxonomy_metabox'), $this->get_content_type(), 'side', 'core');
+			}
+		}
+	}
+
+	/**
+	 * hides the slugs meta box
+	 * @todo pending patch 'hidden_meta_boxes.patch' submitted to http://core.trac.wordpress.org/ticket/10437
+	 *
+	 * @param array $hidden_meta_boxes
+	 * @param string $post_type
+	 * @return array
+	 */
+	public function filter_hidden_meta_boxes($hidden_meta_boxes, $post_type)
+	{
+		return array_merge($hidden_meta_boxes, array($this->get_content_type().'_slugdiv'));
+	}
+
+	/**
+	 * Setup handling for the manage page for the content type.
+	 *
+	 * @todo this should be changed to share more code between the add
+	 * and edit custom type setup
+	 */
+	public function setup_manage_page()
+	{
+		if(isset($_REQUEST['post']))
+		{
+			$this->setup_edit_page('edit');
+		}
+		else
+		{
+			add_filter('manage_' . $this->get_content_type() . '_columns', array($this, 'manage_columns'));
+		}
+	}
+
+	/**
+	 * BEGIN WP 2.9 ONLY METHODS
+	 */
+	
+	/**
+	 * Sets the columns for the edit/add page for the content type.  Default is 2
+	 *
+	 * @param array $columns
+	 * @param string $screen
+	 * @return array
+	 */
+	public function filter_screen_layout_columns($columns, $screen)
+	{
+		$columns[$screen] = 2;
+		return $columns;
+	}
+
+	/**
+	 * Maps post_type specific capabilities to generic 'post' capabilities.  This is a temporary fix
+	 * until a better permission system has been created and until core has all post_type specific
+	 * permission checks refined.
+	 *
+	 * @todo remove this function once permissions have been created
+	 *
+	 * @param array $caps
+	 * @param string $cap
+	 * @param int $user_id
+	 * @param array $args
+	 * @return array
+	 */
+	public function map_meta_cap($caps, $cap, $user_id, $args)
+	{
+		foreach($caps as $key => $capability)
+		{
+			$cap[$key] = str_replace($this->get_content_type(), 'post', $capability);
+		}
+		return $caps;
+	}
+	
 	/**
 	 * Default function for handling manage page post backs.
 	 *
@@ -421,72 +603,7 @@ abstract class CP_Custom_Content_Handler_Base
 			exit ();
 		}
 	}
-
-	/**
-	 * Adds metaboxes for the given post_type
-	 * @todo change this to run off of a setting driven dataset
-	 *
-	 */
-	protected function add_meta_boxes()
-	{
-		add_meta_box('submitdiv', __('Publish'), 'post_submit_meta_box', $this->get_content_type(), 'side', 'core');
-		add_meta_box( $this->get_content_type().'_slugdiv', __('Post Slug'), 'post_slug_meta_box', $this->get_content_type(), 'normal', 'core');
-
-		/**
-		 * @todo pending patch 'hidden_meta_boxes.patch' submitted to http://core.trac.wordpress.org/ticket/10437
-		 */
-		add_filter('get_hidden_meta_boxes', array($this, 'filter_hidden_meta_boxes'), 10, 2);
-
-		// add taxonomies
-		foreach ( get_object_taxonomies($this->get_content_type()) as $tax_name ) {
-			if ( !is_taxonomy_hierarchical($tax_name) ) {
-				$taxonomy = get_taxonomy($tax_name);
-				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
-				add_meta_box('tagsdiv-' . $tax_name, $label, 'post_tags_meta_box', $this->get_content_type(), 'side', 'core');
-			}
-			else
-			{
-				//@todo change this to use the built in taxonomy metabox if it exists
-				//setup category style taxonomy
-				$custom_taxonomy = CP_Custom_Taxonomy_Core::GetInstance()->get_handler($tax_name);
-				$taxonomy = get_taxonomy($tax_name);
-				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
-				add_meta_box('categorydiv-' . $tax_name, $label, array($custom_taxonomy, 'hierarchical_taxonomy_metabox'), $this->get_content_type(), 'side', 'core');
-			}
-		}
-	}
-
-	/**
-	 * hides the slugs meta box
-	 * @todo pending patch 'hidden_meta_boxes.patch' submitted to http://core.trac.wordpress.org/ticket/10437
-	 *
-	 * @param array $hidden_meta_boxes
-	 * @param string $post_type
-	 * @return array
-	 */
-	public function filter_hidden_meta_boxes($hidden_meta_boxes, $post_type)
-	{
-		return array_merge($hidden_meta_boxes, array($this->get_content_type().'_slugdiv'));
-	}
-
-	/**
-	 * Setup handling for the manage page for the content type.
-	 *
-	 * @todo this should be changed to share more code between the add
-	 * and edit custom type setup
-	 */
-	public function setup_manage_page()
-	{
-		if(isset($_REQUEST['post']))
-		{
-			$this->setup_edit_page('edit');
-		}
-		else
-		{
-			add_filter('manage_' . $this->get_content_type() . '_columns', array($this, 'manage_columns'));
-		}
-	}
-
+	
 	/**
 	 * Enqueues the needed scripts and hooks for the add page for the custom
 	 * content type. Calls $this->add_meta_boxes for adding custom content
@@ -850,8 +967,8 @@ abstract class CP_Custom_Content_Handler_Base
 			}
 			?>
 		</tr>
-<?php
-$post = $global_post;
+		<?php
+		$post = $global_post;
 	}
 
 	public function manage_content_page()
@@ -872,71 +989,4 @@ $post = $global_post;
 		return;
 	}
 
-
-	
-	/**
-	 * Filters for handle_404 to allow months with no events not to 404
-	 *
-	 * @todo This is dependent on http://core.trac.wordpress.org/ticket/10722
-	 *
-	 * @param bool $handle_404
-	 * @return bool
-	 */
-	public function should_handle_404($handle_404)
-	{
-		global $wp_query;
-		if($handle_404 && get_query_var('post_type') == $this->get_content_type())
-		{
-			$handle_404 = false;
-		}
-		return $handle_404;
-	}
-	
-	/**
-	 * The following 2 functions are a work around to keep empty months from 404ing
-	 * until http://core.trac.wordpress.org/ticket/10722 is available.
-	 *
-	 * @todo add handling to use these hooks instead if the the patch isn't available
-	 */
-	public function handle_404_workaround()
-	{
-		if(get_query_var('post_type') == $this->get_content_type() && is_date())
-		{
-			global $wp_query;
-			$wp_query->is_category = true;
-			$wp_query->queried_object = true;
-		}
-	}
-	public function reset_handle_404_workaround()
-	{
-		if(get_query_var('post_type') == $this->get_content_type() && is_date())
-		{
-			global $wp_query;
-			$wp_query->is_category = false;
-			unset($wp_query->queried_object);
-		}
-	}
-	
-
-	/**
-	 * Maps post_type specific capabilities to generic 'post' capabilities.  This is a temporary fix
-	 * until a better permission system has been created and until core has all post_type specific
-	 * permission checks refined.
-	 *
-	 * @todo remove this function once permissions have been created
-	 *
-	 * @param array $caps
-	 * @param string $cap
-	 * @param int $user_id
-	 * @param array $args
-	 * @return array
-	 */
-	public function map_meta_cap($caps, $cap, $user_id, $args)
-	{
-		foreach($caps as $key => $capability)
-		{
-			$cap[$key] = str_replace($this->get_content_type(), 'post', $capability);
-		}
-		return $caps;
-	}
 }

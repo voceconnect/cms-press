@@ -20,17 +20,43 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions')
+			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
+			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%/'.get_option('permalink_structure'))
 		);
 		$this->settings = shortcode_atts($default_settings, $settings);
+		$this->cleanup_permastructure();
 	}
 	
-	/**
-	 * Place holder function to be used in future releases that may need to translate deprecated features.
-	 *
-	 */
 	public function __wakeup()
 	{
+		$this->cleanup_permastructure();
+	}
+	
+	public function cleanup_permastructure()
+	{
+		$permastructure = $this->get_setting('permastructure', parent::get_type_permastructure());		
+		if ( !is_array($permastructure) )
+			$permastructure = array();
+			
+		if ( !isset($permastructure['identifier']) )
+		{
+			$permastructure['identifier'] = $this->get_content_type();
+		}
+		else 
+		{
+			$permastructure['identifier'] = trim($permastructure['identifier'], '/');
+		}
+		
+		if ( !isset($permastructure['structure']) )
+		{
+			$permastructure['structure'] = '%identifier%/'.get_option('permalink_structure');
+		}
+		else 
+		{
+			preg_replace('#/+#', '/', '/' . $permastructure['structure']);
+		}
+		
+		$this->settings['permastructure'] = $permastructure;
 	}
 	
 	/**
@@ -113,7 +139,14 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->get_setting('icon_url', '');
 	}
-		
+
+	public function get_type_permastructure()
+	{
+		return $this->get_setting('permastructure', parent::get_type_permastructure());
+	}
+	
+	
+	
 	/**
 	 * Updates a setting with the given value.  Will only update settings that currently exist.
 	 *
@@ -152,6 +185,8 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return (array) $this->settings['supports'];
 	}
+	
+	
 	
 }
 
@@ -296,7 +331,9 @@ class Dynamic_Content_Builder
 	
 	public function save_content_types()
 	{
+		global $wp_rewrite;
 		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $this->content_handlers);
+		$wp_rewrite->flush_rules();
 	}
 	
 	/**
@@ -574,7 +611,6 @@ class Dynamic_Content_Builder
 						<input type="text" class="regular-text code" id="label_plural" name="label_plural" value="<?php echo attribute_escape($content_handler->get_type_label_plural()); ?>" />
 					</td>
 				</tr>
-				<?php /* @todo leaving these out until WP 3.0
 				<tr valign="top">
 					<th scope="row"><?php _e('Display in admin menu?'); ?></th>
 					<td>
@@ -587,6 +623,7 @@ class Dynamic_Content_Builder
 						<span class="description"><?php _e('This will almost always be Yes.')?></span>
 					</td>
 				</tr>
+				<?php /* @todo leaving these out for now 
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Hierarchical?'); ?></th>
 					<td>
@@ -624,6 +661,44 @@ class Dynamic_Content_Builder
 						&nbsp; &nbsp;
 						<span class="description"><?php _e('Should this content be excluded in search results?')?></span>
 					</td>
+				</tr>
+			</table>
+			<br />
+			<h3><?php _e('Permalink Structure')?></h3>
+			<?php
+			$permastructure = $content_handler->get_type_permastructure();
+			if( empty($permastructure['identifier']) )
+			{
+				$perma_identifier = $content_handler->get_content_type();
+				if(!$add) $permalink_warnings[] = __("Content Type Identifier should not be empty.");
+			}
+			else 
+			{
+				$perma_identifier = $permastructure['identifier'];
+			}
+			if( empty($permastructure['structure']) )
+			{
+				$perma_structure = '%identifier%'.get_option('permalink_structure');
+			}
+			else 
+			{
+				$perma_structure = $permastructure['structure'];
+			}
+			?>
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"><label for="permastructure_identifier"><?php _e('Content Type Identifier');?></label></th>
+					<td>
+						<input type="text" class="regular-text code" id="permastructure_identifier" name="permastructure[identifier]" value="<?php echo attribute_escape($perma_identifier); ?>"/>
+						<span class="description"><?php _e('This will be used in the permalink structure to identify this content type.  This should be unique per content type.')?></span>
+					</td>
+				<tr valign="top">
+					<th scope="row"><label for="permastructure_structure"><?php _e('Permalink Structure');?></label></th>
+					<td>
+						<input type="text" class="regular-text code" id="permastructure_structure" name="permastructure[structure]" value="<?php echo attribute_escape($perma_structure); ?>"/>
+						<span class="description"><?php _e('This will be custom URL structure for this content type. These follow WP\'s normal <a href="http://codex.wordpress.org/Using_Permalinks">permalink tags</a>, but must also include the content type \'%identifier%\'.')?></span>
+					</td>
+				</tr>
 				</tr>
 			</table>
 			<br />

@@ -53,14 +53,6 @@ class CP_Custom_Content_Core
 			add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
 		}
 		
-		//allow sites without pretty urls to show custom post_types
-		if('' == get_option('permalink_structure'))
-		{
-			/**
-			 * @todo hopefully this can be removed with a fix to query.php in WP 3.0
-			 */
-			add_action('parse_query', array($instance, 'on_parse_query'), 10, 1);
-		}
 	}
 	
 	/**
@@ -76,6 +68,7 @@ class CP_Custom_Content_Core
 	 * This calls the stetup_custom_content action which should be
 	 * used to registers any child plugins via register_custom_content_type()
 	 *
+	 * Runs on 'init' action
 	 */
 	public function setup_custom_content()
 	{
@@ -106,61 +99,41 @@ class CP_Custom_Content_Core
 					'label' => $handler->get_type_label(), 
 					'publicly_queryable' => $handler->get_type_publicly_queryable(),
 					'exclude_from_search' => $handler->get_type_exclude_from_search(), 
-					'_edit_link' => $handler->get_type_edit_link(), 
 					'public' => $handler->get_type_is_public(), 
 					'hierarchical'=> $handler->get_type_is_hierarchical(), 
 					'capability_type' => $handler->get_type_capability_type(), 
 					'supports'=>$handler->get_type_supports());
+					
+				if($edit_link = $handler->get_type_edit_link())
+				{
+					$args['_edit_link'] = $edit_link;
+				}
 				register_post_type($handler->get_content_type(), $args);
+				$handler->add_rewrite_rules();
+				
 			}
 		}
 		
+		if(version_compare(get_wp_version(), '3.0', '<'))
+		{
+			add_filter('query_vars', array($this, 'query_vars'), 10, 1);
+			add_action('parse_request', array($this, 'parse_request'), 10, 1);
+		}
+		
+		//template handling
 		/**
-		 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
+		 * @todo remove if http://core.trac.wordpress.org/attachment/ticket/9674/9674.18.diff is merged
 		 */
-		add_filter('query_vars', array($this, 'query_vars'), 10, 1);
-		add_action('parse_request', array($this, 'parse_request'), 10, 1);
+		add_filter("single_template", array($this, 'single_template'), 10, 1);
+		
+		add_filter("date_template", array($this, 'date_template'), 10, 1);
+		add_filter("search_template", array($this, 'search_template'), 10, 1);
 
 		//flush the rewrite rules if new content_types were added
 		if(($has_new_types) && !function_exists('wpcom_is_vip'))
 		{
 			$wp_rewrite->flush_rules();
 			update_option('installed_post_types', $installed_post_types);
-		}
-	}
-
-	/**
-	 * Adds post_type query_var
-	 *
-	 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
-	 * 
-	 * @param array $query_vars
-	 * @return array
-	 */
-	public function query_vars($query_vars)
-	{
-		if(!in_array('post_type', $query_vars))
-		{
-			$query_vars[] = 'post_type';
-		}
-		return $query_vars;
-	}
-	
-	/**
-	 * Limits the post_type in the query_vars to ones that should be publicly queryable
-	 *
-	 * @todo remove/deprecate on acception of http://core.trac.wordpress.org/attachment/ticket/9674/9674.17.diff
-	 * 
-	 * @param WP $wp
-	 */
-	public function parse_request($wp)
-	{
-		if(isset($wp->query_vars['post_type']))
-		{
-			if( ($handler = $this->get_content_handler($wp->query_vars['post_type'])) && !$handler->get_type_publicly_queryable())
-			{
-				unset($wp->query_vars['post_type']);
-			}
 		}
 	}
 
@@ -176,7 +149,7 @@ class CP_Custom_Content_Core
 		{
 			if (is_admin ())
 			{
-				wp_die ( "Unable to register '".get_class($handler)."' custom content types.  Class '".get_class($handler)."' must extend 'CP_Custom_Content_Base'.", 'Custom Content Type Error' );
+				trigger_error("Unable to register '".get_class($handler)."' custom content types.  Class '".get_class($handler)."' must extend 'CP_Custom_Content_Base'.", E_WARNING);
 			}
 			return false;
 		}
@@ -201,21 +174,51 @@ class CP_Custom_Content_Core
 		return false;
 	}
 
+	
 	/**
-	 * Filter to the parsed query vars that allows custom post_types to display when ?p=# permastrcture is used 
+	 * Tries to rewrite single.php template to {post_type}.php
+	 *
+	 * @todo deprecated if http://core.trac.wordpress.org/attachment/ticket/9674/9674.18.diff is merged
 	 * 
-	 * @todo check on adoption of http://core.trac.wordpress.org/attachment/ticket/9674/9674-183.patch as it inclusion
-	 * deprecates this function
-	 * 
-	 * @param WP_Query $wp_query
+	 * @param string $template
+	 * @return string
 	 */
-	public function on_parse_query(&$wp_query)
+	public function single_template($template)
 	{
-		if ( '' == $wp_query->query_vars['attachment'] && empty($wp_query->query_vars['attachment_id']) && '' == $wp_query->query_vars['name'] && $wp_query->query_vars['p'] && empty($wp_query->query_vars['post_type'])) {
-			$wp_query->query_vars['post_type'] = 'any';
-		}
+		global $wp_query;
+		if( $replacement_template = get_query_template($wp_query->get_queried_object()->post_type) )
+			return $replacement_template;
+		return $template;
 	}
 
+	/**
+	 * Replaces date template with date-{post_type}.php
+	 *
+	 * @param string $template
+	 * @return string
+	 */
+	public function date_template($template)
+	{
+		if( $replacement_template = get_query_template('date-'.get_query_var('post_type')) )
+			return $replacement_template;
+		return $template;
+	}
+
+	/**
+	 * Replaces search template with search-{post_type}.php
+	 *
+	 * @param unknown_type $template
+	 * @return unknown
+	 */
+	public function search_template($template)
+	{
+		global $wp_query;
+		if( $replacement_template = get_query_template('search-'.get_query_var('post_type')) )
+			return $replacement_template;
+		return $template;
+	}
+	
+	
 	/**
 	 * BEGIN WP 2.9 ONLY METHODS
 	 */
@@ -230,16 +233,18 @@ class CP_Custom_Content_Core
 	{
 		foreach($this->content_handlers as $handler)
 		{
-			//add manager menu and handling
-			$page_hook = add_object_page( "Manage {$handler->get_type_label_plural()}", $handler->get_type_label_plural(), 'edit_pages', basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'), $handler->get_type_icon_url());
-			add_action('load-'.$page_hook, array($handler, 'setup_manage_page'), 10);
-			add_action('load-'.$page_hook, array($handler, 'handle_manage_page_postback'), 1);
-
-			//add add menu and handling
-			add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Edit '.$handler->get_type_label_plural(), 'Edit', 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
-			$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Add '.$handler->get_type_label(), 'Add New', 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
-			add_action('load-'.$page_hook, array($handler, 'setup_add_page'));
-
+			if($handler->get_type_is_public())
+			{
+				//add manager menu and handling
+				$page_hook = add_object_page( "Manage {$handler->get_type_label_plural()}", $handler->get_type_label_plural(), 'edit_pages', basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'), $handler->get_type_icon_url());
+				add_action('load-'.$page_hook, array($handler, 'setup_manage_page'), 10);
+				add_action('load-'.$page_hook, array($handler, 'handle_manage_page_postback'), 1);
+	
+				//add add menu and handling
+				add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Edit '.$handler->get_type_label_plural(), 'Edit', 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
+				$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Add '.$handler->get_type_label(), 'Add New', 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
+				add_action('load-'.$page_hook, array($handler, 'setup_add_page'));
+			}
 		}
 	}
 	
@@ -404,6 +409,36 @@ class CP_Custom_Content_Core
 		return $allcaps;
 	}
 	
+	/**
+	 * Adds post_type query_var
+	 *
+	 * @param array $query_vars
+	 * @return array
+	 */
+	public function query_vars($query_vars)
+	{
+		if(!in_array('post_type', $query_vars))
+		{
+			$query_vars[] = 'post_type';
+		}
+		return $query_vars;
+	}
+	
+	/**
+	 * Limits the post_type in the query_vars to ones that should be publicly queryable
+	 *
+	 * @param WP $wp
+	 */
+	public function parse_request($wp)
+	{
+		if(isset($wp->query_vars['post_type']))
+		{
+			if( ($handler = $this->get_content_handler($wp->query_vars['post_type'])) && !$handler->get_type_publicly_queryable())
+			{
+				unset($wp->query_vars['post_type']);
+			}
+		}
+	}
 
 	/**
 	 * END WP 2.9 ONLY METHODS
