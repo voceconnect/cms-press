@@ -21,9 +21,18 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'capability_type' => 'post',
 			'icon_url' => '',
 			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
-			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%/'.get_option('permalink_structure'))
+			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
-		$this->settings = shortcode_atts($default_settings, $settings);
+		
+		$this->settings = array();
+		foreach($default_settings as $name => $default) 
+		{
+		if ( !empty($settings[$name]) )
+			$this->settings[$name] = $settings[$name];
+		else
+			$this->settings[$name] = $default;
+		}
+		//$this->settings = shortcode_atts($default_settings, $settings);
 		$this->cleanup_permastructure();
 	}
 	
@@ -269,12 +278,12 @@ class Dynamic_Content_Builder
 	public function get_standard_features()
 	{
 		return array(
-			'post-thumbnails' => array('label' => __('Thumbnails'), 'description' => __('A default image for the post')),
-			'excerpts' => array('label' => __('Excerpts'), 'description' => ''), 
-			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => ''), 
-			'custom-fields' => array('label' => __('Custom Fields'), 'description' => ''), 
-			'comments' => array('label' => __('Comments'), 'description' => ''), 
-			'revisions' => array('label' => __('Revisions'), 'description' => '')
+			'post-thumbnails' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
+			'excerpts' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
+			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')), 
+			'custom-fields' => array('label' => __('Custom Fields'), 'description' => __('Adds the ability to add custom fields to the content type.')), 
+			'comments' => array('label' => __('Comments'), 'description' => __('Adds comment management for the content type.')), 
+			'revisions' => array('label' => __('Revisions'), 'description' => __('Adds revision management to the content type.'))
 		);
 	}
 	
@@ -465,7 +474,12 @@ class Dynamic_Content_Builder
 						$content_type = $this->add_content_handler($content_handler);
 						if(!is_wp_error($content_type))
 						{
-							$notice = "The content type of '{$content_type}' has been created.";
+							$add_url = admin_url('post-new.php?post_type='.$content_type);
+							if(version_compare(get_wp_version(), '3.0', '<'))
+							{
+								$add_url = CP_Custom_Content_Core::GetInstance()->get_add_custom_content_url($content_type);
+							}
+							$notice = sprintf(__("The content type of '{$content_type}' has been created.  <a href=\"%s\">Add one now.</a>"), attribute_escape($add_url));
 							wp_redirect($this->get_edit_content_type_url($content_type, array('notice'=>$notice)));
 							exit();
 						}
@@ -620,7 +634,7 @@ class Dynamic_Content_Builder
 						<label for="public_no"><?php echo ('No') ?></label>
 						<input type="radio" id="public" name="public" value="0"<?php echo !$content_handler->get_type_is_public() ? ' checked="checked"' : ''?> />
 						&nbsp; &nbsp;
-						<span class="description"><?php _e('This will almost always be Yes.')?></span>
+						<span class="description"><?php _e('This should almost always be Yes.')?></span>
 					</td>
 				</tr>
 				<?php /* @todo leaving these out for now 
@@ -665,6 +679,7 @@ class Dynamic_Content_Builder
 			</table>
 			<br />
 			<h3><?php _e('Permalink Structure')?></h3>
+			<p><span class="description">This only applies to Content Types that are Publicly Queryable.</span></p>
 			<?php
 			$permastructure = $content_handler->get_type_permastructure();
 			if( empty($permastructure['identifier']) )
@@ -703,7 +718,6 @@ class Dynamic_Content_Builder
 			</table>
 			<br />
 			<h3><?php _e('Supported Features')?></h3>
-			<h4><?php _e('Standard Features')?></h4>
 			<table class="form-table">
 				<?php	$standard_features = $this->get_standard_features()?>
 				<?php $supported_features = $content_handler->get_type_supports(); ?>
@@ -817,48 +831,52 @@ class Dynamic_Content_Builder
 			<?php if(!empty($_REQUEST['notice'])): ?>
 				<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
 			<?php endif; ?>			
-			<form id="posts-filter" action="<?php $this->get_manage_content_types_url()?>" method="post">
-				<div class="tablenav">
-					<div class="alignleft actions">
-						<select name="action">
-							<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
-							<option value="bulk-delete"><?php _e('Delete'); ?></option>
-						</select>
-						<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction" id="doaction" class="button-secondary action" />
-						<?php wp_nonce_field('bulk-action'); ?>
+			<?php if(count($content_types)) :?>
+				<form id="posts-filter" action="<?php $this->get_manage_content_types_url()?>" method="post">
+					<div class="tablenav">
+						<div class="alignleft actions">
+							<select name="action">
+								<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
+								<option value="bulk-delete"><?php _e('Delete'); ?></option>
+							</select>
+							<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction" id="doaction" class="button-secondary action" />
+							<?php wp_nonce_field('bulk-action'); ?>
+						</div>
+						<br class="clear" />
 					</div>
-					<br class="clear" />
-				</div>
-				<table class="widefat fixed" cellspacing="0">
-					<thead>
-						<tr class="thead">
-							<?php print_column_headers('dynamic_content') ?>
-						</tr>
-					</thead>
-					<tfoot>
-						<tr class="thead">
-							<?php print_column_headers('dynamic_content', false) ?>
-						</tr>
-					</tfoot>
-					<tbody id="content-types" class="list:content-types content-type-list">
-						<?php	$style = '';?>
-						<?php	foreach ( $content_types as $content_type ) : ?>
-							<?php $style = ( ' class="alternate"' == $style ) ? '' : ' class="alternate"';?>
-							<?php echo "\n\t" . $this->dynamic_content_row($content_type, $style); ?>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-				<div class="tablenav">
-					<div class="alignleft actions">
-						<select name="action2">
-							<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
-							<option value="delete"><?php _e('Delete'); ?></option>
-						</select>
-						<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction2" id="doaction2" class="button-secondary action" />
+					<table class="widefat fixed" cellspacing="0">
+						<thead>
+							<tr class="thead">
+								<?php print_column_headers('dynamic_content') ?>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr class="thead">
+								<?php print_column_headers('dynamic_content', false) ?>
+							</tr>
+						</tfoot>
+						<tbody id="content-types" class="list:content-types content-type-list">
+							<?php	$style = '';?>
+							<?php	foreach ( $content_types as $content_type ) : ?>
+								<?php $style = ( ' class="alternate"' == $style ) ? '' : ' class="alternate"';?>
+								<?php echo "\n\t" . $this->dynamic_content_row($content_type, $style); ?>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+					<div class="tablenav">
+						<div class="alignleft actions">
+							<select name="action2">
+								<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
+								<option value="delete"><?php _e('Delete'); ?></option>
+							</select>
+							<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction2" id="doaction2" class="button-secondary action" />
+						</div>
+						<br class="clear" />
 					</div>
-					<br class="clear" />
-				</div>
-			</form>
+				</form>
+			<?php else: ?>
+				<p><?php printf(__('There are currently no custom content types created.  <a href="%s">Create One</a></p>'), $this->get_add_content_type_url())?></p>
+			<?php endif; ?>
 		</div>
 		<br class="clear" />
 		<?php

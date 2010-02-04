@@ -635,49 +635,53 @@ class Dynamic_Taxonomy_Builder
 			</h2>
 			<?php if(!empty($_REQUEST['notice'])): ?>
 				<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
-			<?php endif; ?>			
-			<form id="posts-filter" action="<?php $this->get_manage_taxonomies_url()?>" method="post">
-				<div class="tablenav">
-					<div class="alignleft actions">
-						<select name="action">
-							<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
-							<option value="bulk-delete"><?php _e('Delete'); ?></option>
-						</select>
-						<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction" id="doaction" class="button-secondary action" />
-						<?php wp_nonce_field('bulk-action'); ?>
+			<?php endif; ?>		
+			<?php if(count($taxonomy_names)) : ?>	
+				<form id="posts-filter" action="<?php $this->get_manage_taxonomies_url()?>" method="post">
+					<div class="tablenav">
+						<div class="alignleft actions">
+							<select name="action">
+								<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
+								<option value="bulk-delete"><?php _e('Delete'); ?></option>
+							</select>
+							<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction" id="doaction" class="button-secondary action" />
+							<?php wp_nonce_field('bulk-action'); ?>
+						</div>
+						<br class="clear" />
 					</div>
-					<br class="clear" />
-				</div>
-				<table class="widefat fixed" cellspacing="0">
-					<thead>
-						<tr class="thead">
-							<?php print_column_headers('dynamic_taxonomy') ?>
-						</tr>
-					</thead>
-					<tfoot>
-						<tr class="thead">
-							<?php print_column_headers('dynamic_taxonomy', false) ?>
-						</tr>
-					</tfoot>
-					<tbody id="taxonomies" class="list:taxonomies taxonomy-list">
-						<?php	$style = '';?>
-						<?php	foreach ( $taxonomy_names as $taxonomy_name ) : ?>
-							<?php $style = ( ' class="alternate"' == $style ) ? '' : ' class="alternate"';?>
-							<?php echo "\n\t" . $this->dynamic_taxonomy_row($taxonomy_name, $style); ?>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-				<div class="tablenav">
-					<div class="alignleft actions">
-						<select name="action2">
-							<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
-							<option value="delete"><?php _e('Delete'); ?></option>
-						</select>
-						<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction2" id="doaction2" class="button-secondary action" />
+					<table class="widefat fixed" cellspacing="0">
+						<thead>
+							<tr class="thead">
+								<?php print_column_headers('dynamic_taxonomy') ?>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr class="thead">
+								<?php print_column_headers('dynamic_taxonomy', false) ?>
+							</tr>
+						</tfoot>
+						<tbody id="taxonomies" class="list:taxonomies taxonomy-list">
+							<?php	$style = '';?>
+							<?php	foreach ( $taxonomy_names as $taxonomy_name ) : ?>
+								<?php $style = ( ' class="alternate"' == $style ) ? '' : ' class="alternate"';?>
+								<?php echo "\n\t" . $this->dynamic_taxonomy_row($taxonomy_name, $style); ?>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+					<div class="tablenav">
+						<div class="alignleft actions">
+							<select name="action2">
+								<option value="" selected="selected"><?php _e('Bulk Actions'); ?></option>
+								<option value="delete"><?php _e('Delete'); ?></option>
+							</select>
+							<input type="submit" value="<?php esc_attr_e('Apply'); ?>" name="doaction2" id="doaction2" class="button-secondary action" />
+						</div>
+						<br class="clear" />
 					</div>
-					<br class="clear" />
-				</div>
-			</form>
+				</form>
+			<?php else: ?>
+				<p><?php printf(__('There are currently no custom taxonomies created.  <a href="%s">Create One</a></p>'), $this->get_add_taxonomy_url())?></p>
+			<?php endif; ?>
 		</div>
 		<br class="clear" />
 		<?php

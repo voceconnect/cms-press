@@ -213,7 +213,6 @@ abstract class CP_Custom_Content_Handler_Base
 				}
 				$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_YEAR), $rewrite_rules);
 			}
-			//var_dump($rewrite_rules);
 			foreach($rewrite_rules as $regex => $redirect)
 			{
 				$redirect .= '&post_type='.$this->get_content_type();
@@ -229,56 +228,8 @@ abstract class CP_Custom_Content_Handler_Base
 		}
 	}
 	
-	protected function get_date_permastruct()
-	{
-		$permastructure = $this->get_type_permastructure();
-		$structure = $permastructure['structure'];
-		var_dump($structure);
-		// The date permalink must have year, month, and day separated by slashes.
-		$endians = array('%year%/%monthnum%/%day%', '%day%/%monthnum%/%year%', '%monthnum%/%day%/%year%');
-
-		$date_structure = '';
-		$date_endian = '';
-
-		foreach ($endians as $endian) 
-		{
-		var_dump(" $structure ------ $endian");
-		var_dump(strpos($structure, $endian));
-			if (false !== strpos($structure, $endian)) 
-			{
-				$date_endian= $endian;
-				break;
-			}
-		}
-		var_dump($date_endian);
-		
-		if ( empty($date_endian) )
-		{
-			$date_endian = '%year%/%monthnum%/%day%';
-			$front = '%identifier/';
-		}
-
-		// Do not allow the date tags and %post_id% to overlap in the permalink
-		// structure. If they do, move the date tags to $front/date/.
-		preg_match_all('/%.+?%/', $structure, $tokens);
-		$tok_index = 1;
-		foreach ( (array) $tokens[0] as $token) {
-			if ( ($token == '%post_id%') && ($tok_index <= 3) ) {
-				$front = $front . 'date/';
-				break;
-			}
-			$tok_index++;
-		}
-
-		$structure = $front . $date_endian;
-var_dump($date_structure);
-die();
-		return $this->date_structure;
-	}
-	
 	/**
-	 * Permalink handling for post_type, currently only supports /%year%/%month%/%day%/%postname%/
-	 * @todo this should be incorporated into the permalink/rewrite handling so they match up
+	 * Permalink handling for post_type
 	 *
 	 * @param string $permalink
 	 * @param objecy $post
