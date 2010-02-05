@@ -11,7 +11,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 		
 	public function __construct($taxonomy_name = '', $object_types = array('post'), $settings = array())
 	{
-		$this->taxonomy_name = sanitize_title_with_dashes(strtolower($taxonomy_name));
+		$this->taxonomy_name = sanitize_user(strtolower($taxonomy_name));
 		
 		$this->object_types = (array) $object_types;
 		
@@ -19,7 +19,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	 		'label' => $taxonomy_name,
 	 		'label_plural' => $taxonomy_name,
 	 		'hierarchical' => false, 
-	 		'update_count_callback' => '', 
+	 		'update_count_callback' => false, 
 	 		'rewrite' => true, 
 	 		'query_var' => true
 		);

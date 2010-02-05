@@ -159,13 +159,6 @@ abstract class CP_Custom_Content_Handler_Base
 		{
 			add_filter('post_link', array($this, 'post_link'), 10, 3);
 		}
-		
-		/* @todo deprecate
-		if(!function_exists('wpcom_is_vip'))  //VIP requires hardcoded rewrite rules
-		{
-			add_filter('generate_rewrite_rules', array($this, 'add_rewrite_rules'), 10, 1);
-		}
-		*/
 	}
 	
 	/**
@@ -236,7 +229,7 @@ abstract class CP_Custom_Content_Handler_Base
 	 * @param bool $leavename
 	 * @return string
 	 */
-	public function post_link($permalink, $post, $leavename = false)
+	public function post_link($permalink, $id, $leavename = false)
 	{
 		if ( is_object($id) && isset($id->filter) && 'sample' == $id->filter ) {
 		$post = $id;
@@ -352,15 +345,6 @@ abstract class CP_Custom_Content_Handler_Base
 				$taxonomy = get_taxonomy($tax_name);
 				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
 				add_meta_box('tagsdiv-' . $tax_name, $label, 'post_tags_meta_box', $this->get_content_type(), 'side', 'core');
-			}
-			else
-			{
-				//@todo change this to use the built in taxonomy metabox if it exists
-				//setup category style taxonomy
-				$custom_taxonomy = CP_Custom_Taxonomy_Core::GetInstance()->get_handler($tax_name);
-				$taxonomy = get_taxonomy($tax_name);
-				$label = isset($taxonomy->label) ? esc_attr($taxonomy->label) : $tax_name;
-				add_meta_box('categorydiv-' . $tax_name, $label, array($custom_taxonomy, 'hierarchical_taxonomy_metabox'), $this->get_content_type(), 'side', 'core');
 			}
 		}
 	}
@@ -587,18 +571,7 @@ abstract class CP_Custom_Content_Handler_Base
 		wp_enqueue_script('quicktags');
 		wp_enqueue_script('post');
 
-		/**
-		 * start meta boxes
-		 * @todo make this more flexible by allowing registration/deregistration of metaboxes
-		 */
-		if(file_exists(ABSPATH .'/wp-admin/includes/meta-boxes.php'))
-		{
-			require_once(ABSPATH .'/wp-admin/includes/meta-boxes.php');
-		}
-		else
-		{
-			require_once(dirname(__FILE__).'/meta-box.php');
-		}
+		require_once(ABSPATH .'/wp-admin/includes/meta-boxes.php');
 		$this->add_meta_boxes();
 
 		add_filter('screen_layout_columns', array($this, 'filter_screen_layout_columns'), 10, 2);
@@ -927,16 +900,16 @@ abstract class CP_Custom_Content_Handler_Base
 		//do management page
 		if(isset($_REQUEST['post']))
 		{
-			include(dirname(__FILE__).'/edit-content.php');
+			include(dirname(__FILE__).'/legacy/edit-content.php');
 			return;
 		}
-		include(dirname(__FILE__).'/manage-content.php');
+		include(dirname(__FILE__).'/legacy/manage-content.php');
 		return;
 	}
 
 	public function add_content_page()
 	{
-		include(apply_filters('add_custom_content_handler', dirname(__FILE__).'/add-content.php',  $this->get_content_type()));
+		include(apply_filters('add_custom_content_handler', dirname(__FILE__).'/legacy/add-content.php',  $this->get_content_type()));
 		return;
 	}
 

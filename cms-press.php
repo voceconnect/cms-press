@@ -36,7 +36,7 @@ if(!version_compare(get_wp_version(), '2.9', '>='))
 define('CP_BASE_DIR', dirname(__FILE__));
 define('CP_BASE_URL', str_replace(str_replace('\\', '/',ABSPATH), site_url().'/', str_replace('\\', '/', dirname(__FILE__))));
 
-require_once(CP_BASE_DIR.'/cp-custom-content/legacy.php');
+require_once(CP_BASE_DIR.'/cp-custom-content/legacy/legacy.php');
 
 /**
  * Core files
