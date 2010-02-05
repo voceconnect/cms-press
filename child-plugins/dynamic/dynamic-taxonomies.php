@@ -23,7 +23,14 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	 		'rewrite' => true, 
 	 		'query_var' => true
 		);
-		$this->settings = shortcode_atts($default_settings, $settings);
+		$this->settings = array();
+		foreach($default_settings as $name => $default) 
+		{
+			if ( !empty($settings[$name]) )
+				$this->settings[$name] = $settings[$name];
+			else
+				$this->settings[$name] = $default;
+		}
 		parent::__construct();
 	}
 	
@@ -503,7 +510,7 @@ class Dynamic_Taxonomy_Builder
 						<input type="text" class="regular-text code" id="label_plural" name="settings[label_plural]" value="<?php echo attribute_escape($taxonomy->get_taxonomy_label_plural()); ?>" />
 					</td>
 				</tr>
-				<?php /* @todo: only allow this to render for WP 3.0 and above as 2.9 does not support custom hierarchical taxonomies
+				<?php if(version_compare(get_wp_version(), '3.0', '>=')): ?>
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Hierarchical?'); ?></th>
 					<td>
@@ -516,8 +523,7 @@ class Dynamic_Taxonomy_Builder
 						<span class="description"><?php _e('Will terms in this taxonomy have categorical structure?')?></span>
 					</td>
 				</tr>
-				*/
-				?>
+				<?php endif; ?>
 			</table>
 			<h3><?php _e('General Settings')?></h3>
 			<table class="form-table">

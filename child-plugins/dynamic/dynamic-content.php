@@ -27,10 +27,10 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		$this->settings = array();
 		foreach($default_settings as $name => $default) 
 		{
-		if ( !empty($settings[$name]) )
-			$this->settings[$name] = $settings[$name];
-		else
-			$this->settings[$name] = $default;
+			if ( !empty($settings[$name]) )
+				$this->settings[$name] = $settings[$name];
+			else
+				$this->settings[$name] = $default;
 		}
 		//$this->settings = shortcode_atts($default_settings, $settings);
 		$this->cleanup_permastructure();
