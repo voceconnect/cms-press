@@ -256,12 +256,8 @@ class CP_Custom_Content_Core
 	 */
 	public function get_add_custom_content_url($post_type)
 	{
-		$url = '';
-		if($this->get_content_handler($post_type) !== false)
-		{
-			$page = plugin_basename(basename(dirname(__FILE__)).'/add-'.$post_type.'.php');
-			$url ='admin.php?page='.$page;
-		}
+		$page = plugin_basename(basename(dirname(__FILE__)).'/add-'.$post_type.'.php');
+		$url ='admin.php?page='.$page;
 		return apply_filters('add_custom_content_url', $url, $post_type);
 	}
 
