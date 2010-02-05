@@ -41,5 +41,5 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 
 == Changelog ==
 
-= 0.1 =
+= 0.1.Beta =
 * Initial Beta Release

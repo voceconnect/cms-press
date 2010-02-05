@@ -9,7 +9,7 @@ Plugin Name: CMS Press
 Plugin URI: http://voceconnect.com
 Description: Adds ability to create custom post_types and taxonomies
 Author: Michael Pretty (prettyboymp)
-Version: 0.01
+Version: 0.1.Beta
 Author URI: http://voceconnect.com
 */
 
