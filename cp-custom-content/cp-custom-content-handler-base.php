@@ -232,7 +232,7 @@ abstract class CP_Custom_Content_Handler_Base
 	public function post_link($permalink, $id, $leavename = false)
 	{
 		if ( is_object($id) && isset($id->filter) && 'sample' == $id->filter ) {
-		$post = $id;
+			$post = $id;
 		} else {
 			$post = &get_post($id);
 		}
@@ -258,7 +258,7 @@ abstract class CP_Custom_Content_Handler_Base
 		$identifier = $permastructure['identifier'];
 		$permalink = $permastructure['structure'];
 	
-		if ( '' != $permalink && !in_array($post->post_status, array('draft', 'pending')) ) 
+		if ( '' != $permalink && !in_array($post->post_status, array('draft', 'pending', 'auto-draft')) ) 
 		{
 			$unixtime = strtotime($post->post_date);
 	
@@ -303,7 +303,11 @@ abstract class CP_Custom_Content_Handler_Base
 			);
 			$permalink = home_url( str_replace($rewritecode, $rewritereplace, $permalink) );
 			$permalink = user_trailingslashit($permalink, 'single');
-		} 
+		}
+		else 
+		{
+			$permalink = home_url('?p=' . $post->ID . '&post_type=' . urlencode($this->get_content_type() ));
+		}
 		return $permalink;
 	}
 	
