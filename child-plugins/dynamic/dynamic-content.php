@@ -428,6 +428,7 @@ class Dynamic_Content_Builder
 	public function add_admin_menu()
 	{
 		$hook = add_menu_page(__('CMS Press'), __('CMS Press'), 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
+		$hook = add_submenu_page('cms-press/manage-content-types', __('Edit Content Types'), 'Edit Content Types', 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
 		add_action('load-'.$hook, array($this, 'on_load_manage_content_types_page'));
 		
 		$hook = add_submenu_page('cms-press/manage-content-types', 'Add Content Type', 'Add Content Type', 'manage_content_types', 'cms-press/add-content-type', array($this, 'add_content_type_page'));
@@ -825,7 +826,7 @@ class Dynamic_Content_Builder
 		<div class="wrap">
 			<?php screen_icon('content_type'); ?>
 			<h2>
-				<?php _e("Manage Content Types"); ?>  
+				<?php _e("Edit Content Types"); ?>  
 				<a href="<?php echo $this->get_add_content_type_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a> 
 			</h2>
 			<?php if(!empty($_REQUEST['notice'])): ?>

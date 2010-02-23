@@ -636,7 +636,7 @@ class Dynamic_Taxonomy_Builder
 		<div class="wrap">
 			<?php screen_icon('taxonomy'); ?>
 			<h2>
-				<?php _e("Manage Taxonomies"); ?>  
+				<?php _e("Edit Taxonomies"); ?>  
 				<a href="<?php echo $this->get_add_taxonomy_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a> 
 			</h2>
 			<?php if(!empty($_REQUEST['notice'])): ?>
