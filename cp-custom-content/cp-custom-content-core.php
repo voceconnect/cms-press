@@ -234,13 +234,13 @@ class CP_Custom_Content_Core
 			if($handler->get_type_is_public())
 			{
 				//add manager menu and handling
-				$page_hook = add_object_page( "Manage {$handler->get_type_label_plural()}", $handler->get_type_label_plural(), 'edit_pages', basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'), $handler->get_type_icon_url());
+				$page_hook = add_object_page( sprintf(__('Edit %s'), $handler->get_type_label_plural()), $handler->get_type_label_plural(), 'edit_pages', basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'), $handler->get_type_icon_url());
 				add_action('load-'.$page_hook, array($handler, 'setup_manage_page'), 10);
 				add_action('load-'.$page_hook, array($handler, 'handle_manage_page_postback'), 1);
 	
 				//add add menu and handling
-				add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Edit '.$handler->get_type_label_plural(), 'Edit', 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
-				$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', 'Add '.$handler->get_type_label(), 'Add New', 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
+				add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', sprintf(__('Edit %s'), $handler->get_type_label()), __('Edit'), 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
+				$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', sprintf(__('Add %s'), $handler->get_type_label()), __('Add New'), 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
 				add_action('load-'.$page_hook, array($handler, 'setup_add_page'));
 			}
 		}
