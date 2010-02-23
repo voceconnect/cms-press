@@ -106,7 +106,16 @@ abstract class CP_Custom_Taxonomy_Base
 	 */
 	public function register_management_page()
 	{
-		add_submenu_page('edit.php', $this->get_taxonomy_label_plural(), $this->get_taxonomy_label_plural(), 'manage_categories', 'edit-tags.php?taxonomy=' . $this->get_taxonomy_name());
+		$post_type = array_shift($this->get_object_types());
+		if('post' == $post_type)
+			add_submenu_page('edit.php', $this->get_taxonomy_label_plural(), $this->get_taxonomy_label_plural(), 'manage_categories', 'edit-tags.php?taxonomy=' . $this->get_taxonomy_name());
+		elseif ('page' == $post_type)
+			add_submenu_page('edit-pages.php', $this->get_taxonomy_label_plural(), $this->get_taxonomy_label_plural(), 'manage_categories', 'edit-tags.php?taxonomy=' . $this->get_taxonomy_name());
+		else
+		{
+			add_submenu_page(str_replace('admin.php?page=', '', CP_Custom_Content_Core::GetInstance()->get_manage_custom_content_url($post_type)), $this->get_taxonomy_label_plural(), $this->get_taxonomy_label_plural(), 'manage_categories', 'edit-tags.php?taxonomy=' . $this->get_taxonomy_name());
+		}
+
 	}
 	
 	/**
