@@ -171,7 +171,6 @@ class CP_Custom_Content_Core
 		}
 		return false;
 	}
-
 	
 	/**
 	 * Tries to rewrite single.php template to {post_type}.php

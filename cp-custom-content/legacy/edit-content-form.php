@@ -17,17 +17,17 @@ if ( ! isset( $temp_ID ) )
 
 if ( isset($_GET['message']) )
 	$_GET['message'] = absint( $_GET['message'] );
-$messages[1] = sprintf(__('Page updated. <a href="%s">View page</a>'), get_permalink($post_ID));
+$messages[1] = sprintf(__('%s updated. <a href="%s">View %s</a>'), ucfirst($post_type), get_permalink($post_ID), $post_type);
 $messages[2] = __('Custom field updated.');
 $messages[3] = __('Custom field deleted.');
-$messages[5] = sprintf(__('Page published. <a href="%s">View page</a>'), get_permalink($post_ID));
-$messages[6] = sprintf(__('Page submitted. <a href="%s">Preview page</a>'), add_query_arg( 'preview', 'true', get_permalink($post_ID) ) );
+$messages[5] = sprintf(__('%s published. <a href="%s">View %s</a>'), ucfirst($post_type), get_permalink($post_ID), $post_type);
+$messages[6] = sprintf(__('%s submitted. <a href="%s">Preview %s</a>'), ucfirst($post_type), add_query_arg( 'preview', 'true', get_permalink($post_ID) ), $post_type );
 
 if ( isset($_GET['revision']) )
 	$messages[5] = sprintf( __($content_title.' restored to revision from %s'), wp_post_revision_title( (int) $_GET['revision'], false ) );
 
 $notice = false;
-$notices[1] = __( 'There is an autosave of this page that is more recent than the version below.  <a href="%s">View the autosave</a>.' );
+$notices[1] = sprintf(__( 'There is an autosave of this %s that is more recent than the version below.  <a href="%s">View the autosave</a>.' ), $post_type);
 
 if ( 0 == $post_ID)
 {

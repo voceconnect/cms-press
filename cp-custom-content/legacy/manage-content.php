@@ -91,7 +91,7 @@ $_SERVER['REQUEST_URI'] = remove_query_arg( array('locked', 'skipped', 'updated'
 <?php } ?>
 
 <?php if ( isset($_GET['posted']) && $_GET['posted'] ) : $_GET['posted'] = (int) $_GET['posted']; ?>
-<div id="message" class="updated fade"><p><strong><?php _e('Your page has been saved.'); ?></strong> <a href="<?php echo get_permalink( $_GET['posted'] ); ?>"><?php _e('View page'); ?></a> | <a href="<?php echo get_edit_post_link( $_GET['posted'] ); ?>"><?php _e('Edit page'); ?></a></p></div>
+<div id="message" class="updated fade"><p><strong><?php _e('Your page has been saved.'); ?></strong> <a href="<?php echo get_permalink( $_GET['posted'] ); ?>"><?php printf(__('View %s'), $content_type); ?></a> | <a href="<?php echo get_edit_post_link( $_GET['posted'] ); ?>"><?php _e('Edit page'); ?></a></p></div>
 <?php $_SERVER['REQUEST_URI'] = remove_query_arg(array('posted'), $_SERVER['REQUEST_URI']);
 endif; ?>
 
@@ -105,7 +105,7 @@ endif; ?>
 		$num_posts = wp_count_posts($post_type, 'readable');
 		$total_posts = array_sum( (array) $num_posts ) - $num_posts->trash;
 		$class = empty($_GET['post_status']) ? ' class="current"' : '';
-		$status_links[] = "<li><a href='".CP_Custom_Content_Core::GetInstance()->get_manage_custom_content_url($post_type)."'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'pages' ), number_format_i18n( $total_posts ) ) . '</a>';
+		$status_links[] = "<li><a href='".CP_Custom_Content_Core::GetInstance()->get_manage_custom_content_url($post_type)."'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, $content_title_plural ), number_format_i18n( $total_posts ) ) . '</a>';
 		foreach ( $post_stati as $status => $label )
 		{
 			$class = '';
@@ -125,9 +125,9 @@ endif; ?>
 		?>
 	</ul>
 	<p class="search-box">
-		<label class="screen-reader-text" for="page-search-input"><?php _e( 'Search Pages' ); ?>:</label>
+		<label class="screen-reader-text" for="page-search-input"><?php printf(__( 'Search %s' ), $content_title_plural); ?>:</label>
 		<input type="text" id="page-search-input" name="s" value="<?php _admin_search_query(); ?>" />
-		<input type="submit" value="<?php esc_attr_e( 'Search Pages' ); ?>" class="button" />
+		<input type="submit" value="<?php esc_attr_e(sprintf(__('Search %s'), $content_title_plural )); ?>" class="button" />
 	</p>
 
 	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_GET['post_status']) ? esc_attr($_GET['post_status']) : 'all'; ?>" />
