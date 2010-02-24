@@ -102,7 +102,7 @@ abstract class CP_Custom_Content_Handler_Base
 	 */
 	public function get_type_edit_link()
 	{
-		if(version_compare(get_wp_version(), '3.0', '<'))
+		if(version_compare(get_wp_version(), '3.0-dev', '<'))
 		{
 			return 'admin.php?page=cp-custom-content/manage-'.$this->get_content_type().'.php&post=%d';
 		}
@@ -151,7 +151,7 @@ abstract class CP_Custom_Content_Handler_Base
 	public final function add_base_hooks()
 	{
 		//add permastruct handling
-		if(version_compare(get_wp_version(), '3.0', '>='))
+		if(version_compare(get_wp_version(), '3.0-dev', '>='))
 		{
 			add_filter('post_type_link', array($this, 'post_link'), 10, 3);
 		}

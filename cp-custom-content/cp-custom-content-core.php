@@ -42,7 +42,7 @@ class CP_Custom_Content_Core
 	{
 		$instance = self::GetInstance();
 		add_action ( 'init', array ($instance, 'setup_custom_content' ), 1 );
-		if(version_compare(get_wp_version(), '3.0', '<'))
+		if(version_compare(get_wp_version(), '3.0-dev', '<'))
 		{
 			add_action ( 'admin_menu', array ($instance, 'add_menu_items' ) );
 			add_filter('screen_meta_screen', array($instance, 'filter_screen_meta_screen'));
@@ -112,7 +112,7 @@ class CP_Custom_Content_Core
 				
 		}
 		
-		if(version_compare(get_wp_version(), '3.0', '<'))
+		if(version_compare(get_wp_version(), '3.0-dev', '<'))
 		{
 			add_filter('query_vars', array($this, 'query_vars'), 10, 1);
 			add_action('parse_request', array($this, 'parse_request'), 10, 1);

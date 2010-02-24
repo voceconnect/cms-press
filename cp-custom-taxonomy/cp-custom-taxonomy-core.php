@@ -56,7 +56,7 @@ class CP_Custom_Taxonomy_Core
 				$args['update_count_callback'] = $callback;
 			
 			register_taxonomy($handler->get_taxonomy_name(), $handler->get_object_types(), $args);
-			if(version_compare(get_wp_version(), '3.0', '<'))
+			if(version_compare(get_wp_version(), '3.0-dev', '<'))
 			{
 				add_action('admin_menu', array($handler, 'register_management_page'));
 			}

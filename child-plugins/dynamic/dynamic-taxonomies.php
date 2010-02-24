@@ -510,7 +510,7 @@ class Dynamic_Taxonomy_Builder
 						<input type="text" class="regular-text code" id="label_plural" name="settings[label_plural]" value="<?php echo attribute_escape($taxonomy->get_taxonomy_label_plural()); ?>" />
 					</td>
 				</tr>
-				<?php if(version_compare(get_wp_version(), '3.0', '>=')): ?>
+				<?php if(version_compare(get_wp_version(), '3.0-dev', '>=')): ?>
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Hierarchical?'); ?></th>
 					<td>

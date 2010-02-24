@@ -476,7 +476,7 @@ class Dynamic_Content_Builder
 						if(!is_wp_error($content_type))
 						{
 							$add_url = admin_url('post-new.php?post_type='.$content_type);
-							if(version_compare(get_wp_version(), '3.0', '<'))
+							if(version_compare(get_wp_version(), '3.0-dev', '<'))
 							{
 								$add_url = CP_Custom_Content_Core::GetInstance()->get_add_custom_content_url($content_type);
 							}
