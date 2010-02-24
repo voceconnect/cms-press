@@ -226,7 +226,7 @@ endif; ?>
 		</div>
 	<?php else: ?>
 		<div class="clear"></div>
-		<p>No <?php echo strtolower($content_title_plural) ?> found.</p>
+		<p><?php printf(__('No %s found.'), strtolower($content_title_plural)) ?></p>
 	<?php endif; ?>
 </form>
 <?php //inline_edit_row( 'page' ) ?>

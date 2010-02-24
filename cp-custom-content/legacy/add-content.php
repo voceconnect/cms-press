@@ -12,7 +12,7 @@ global $post;
 /** END setup content specific variables **/
 
 if ( empty($title) )
-	$title = "Add New $content_title";
+	$title = sprintf(__("Add New %s"), $content_title);
 
 if ( current_user_can('edit_pages') ) {
 	$action = 'post';
