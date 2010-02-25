@@ -487,27 +487,27 @@ class Dynamic_Taxonomy_Builder
 			<?php else: ?>
 				<input type="hidden" name="action" value="edit_taxonomy" />
 				<?php wp_nonce_field('edit_taxonomy', '_wpnonce')?>
-				<input type="hidden" name="orig_taxonomy" value="<?php echo attribute_escape($taxonomy->get_taxonomy_name())?>" />
+				<input type="hidden" name="orig_taxonomy" value="<?php echo esc_attr($taxonomy->get_taxonomy_name())?>" />
 			<?php endif; ?>
 			<h3><?php _e('General Settings')?></h3>
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><label for="taxonomy_name"><?php _e('Taxonomy (required)'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="taxonomy_name" name="taxonomy_name" value="<?php echo attribute_escape($taxonomy->get_taxonomy_name()); ?>"<?php echo $add ? '' : ' readonly="readonly"'?>/>
+						<input type="text" class="regular-text code" id="taxonomy_name" name="taxonomy_name" value="<?php echo esc_attr($taxonomy->get_taxonomy_name()); ?>"<?php echo $add ? '' : ' readonly="readonly"'?>/>
 						<span class="description"><?php _e('This will be used to identify this taxonomy in the database.  This must be unique.')?></span>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="taxonomy"><?php _e('Label'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="label" name="settings[label]" value="<?php echo attribute_escape($taxonomy->get_taxonomy_label()); ?>" />
+						<input type="text" class="regular-text code" id="label" name="settings[label]" value="<?php echo esc_attr($taxonomy->get_taxonomy_label()); ?>" />
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="taxonomy"><?php _e('Label Plural'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="label_plural" name="settings[label_plural]" value="<?php echo attribute_escape($taxonomy->get_taxonomy_label_plural()); ?>" />
+						<input type="text" class="regular-text code" id="label_plural" name="settings[label_plural]" value="<?php echo esc_attr($taxonomy->get_taxonomy_label_plural()); ?>" />
 					</td>
 				</tr>
 				<?php if(version_compare(get_wp_version(), '3.0-dev', '>=')): ?>
@@ -532,8 +532,8 @@ class Dynamic_Taxonomy_Builder
 					<td>
 						<?php foreach(get_post_types(null, 'objects') as $post_type): ?>
 							<?php if((isset($post_type->public) && $post_type->public) || in_array($post_type->name, array('post', 'page', 'attachment'))):?>
-								<input type="checkbox" id="object_types_<?php echo attribute_escape($post_type->name)?>" name="object_types[]" value="<?php echo attribute_escape($post_type->name)?>"<?php echo $taxonomy->supports_post_type($post_type->name) ? ' checked="checked"' : ''?> />
-								<label for="object_types_<?php echo attribute_escape($post_type->name)?>"><?php echo $post_type->name?></label>
+								<input type="checkbox" id="object_types_<?php echo esc_attr($post_type->name)?>" name="object_types[]" value="<?php echo esc_attr($post_type->name)?>"<?php echo $taxonomy->supports_post_type($post_type->name) ? ' checked="checked"' : ''?> />
+								<label for="object_types_<?php echo esc_attr($post_type->name)?>"><?php echo $post_type->name?></label>
 								<br />
 							<?php endif; ?>
 						<?php endforeach; ?>

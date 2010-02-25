@@ -55,7 +55,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		{
 			$permastructure['identifier'] = trim($permastructure['identifier'], '/');
 		}
-		
+		$permastructure['structure'] = str_replace(array('%category%/', '%tag%/'), '', $permastructure['structure']);
 		if ( !isset($permastructure['structure']) )
 		{
 			$permastructure['structure'] = '%identifier%/'.get_option('permalink_structure');
@@ -480,7 +480,7 @@ class Dynamic_Content_Builder
 							{
 								$add_url = CP_Custom_Content_Core::GetInstance()->get_add_custom_content_url($content_type);
 							}
-							$notice = sprintf(__("The content type of '{$content_type}' has been created.  <a href=\"%s\">Add one now.</a>"), attribute_escape($add_url));
+							$notice = sprintf(__("The content type of '{$content_type}' has been created.  <a href=\"%s\">Add one now.</a>"), esc_attr($add_url));
 							wp_redirect($this->get_edit_content_type_url($content_type, array('notice'=>$notice)));
 							exit();
 						}
@@ -603,27 +603,27 @@ class Dynamic_Content_Builder
 			<?php else: ?>
 				<input type="hidden" name="action" value="edit_content_type" />
 				<?php wp_nonce_field('edit_content_type', '_wpnonce')?>
-				<input type="hidden" name="orig_content_type" value="<?php echo attribute_escape($content_handler->get_content_type())?>" />
+				<input type="hidden" name="orig_content_type" value="<?php echo esc_attr($content_handler->get_content_type())?>" />
 			<?php endif; ?>
 			<h3><?php _e('General Settings')?></h3>
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><label for="content_type"><?php _e('Content Type (required)'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="content_type" name="content_type" value="<?php echo attribute_escape($content_handler->get_content_type()); ?>"<?php echo $add ? '' : ' readonly="readonly"'?>/>
+						<input type="text" class="regular-text code" id="content_type" name="content_type" value="<?php echo esc_attr($content_handler->get_content_type()); ?>"<?php echo $add ? '' : ' readonly="readonly"'?>/>
 						<span class="description"><?php _e('This will be used to identify this content type in the database.  This must be unique.')?></span>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="content_type"><?php _e('Label'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="label" name="label" value="<?php echo attribute_escape($content_handler->get_type_label()); ?>" />
+						<input type="text" class="regular-text code" id="label" name="label" value="<?php echo esc_attr($content_handler->get_type_label()); ?>" />
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="content_type"><?php _e('Label Plural'); ?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="label_plural" name="label_plural" value="<?php echo attribute_escape($content_handler->get_type_label_plural()); ?>" />
+						<input type="text" class="regular-text code" id="label_plural" name="label_plural" value="<?php echo esc_attr($content_handler->get_type_label_plural()); ?>" />
 					</td>
 				</tr>
 				<tr valign="top">
@@ -705,13 +705,13 @@ class Dynamic_Content_Builder
 				<tr valign="top">
 					<th scope="row"><label for="permastructure_identifier"><?php _e('Content Type Identifier');?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="permastructure_identifier" name="permastructure[identifier]" value="<?php echo attribute_escape($perma_identifier); ?>"/>
+						<input type="text" class="regular-text code" id="permastructure_identifier" name="permastructure[identifier]" value="<?php echo esc_attr($perma_identifier); ?>"/>
 						<span class="description"><?php _e('This will be used in the permalink structure to identify this content type.  This should be unique per content type.')?></span>
 					</td>
 				<tr valign="top">
 					<th scope="row"><label for="permastructure_structure"><?php _e('Permalink Structure');?></label></th>
 					<td>
-						<input type="text" class="regular-text code" id="permastructure_structure" name="permastructure[structure]" value="<?php echo attribute_escape($perma_structure); ?>"/>
+						<input type="text" class="regular-text code" id="permastructure_structure" name="permastructure[structure]" value="<?php echo esc_attr($perma_structure); ?>"/>
 						<span class="description"><?php _e('This will be custom URL structure for this content type. These follow WP\'s normal <a href="http://codex.wordpress.org/Using_Permalinks">permalink tags</a>, but must also include the content type \'%identifier%\'.')?></span>
 					</td>
 				</tr>
