@@ -28,7 +28,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		foreach($default_settings as $name => $default) 
 		{
 			if ( !empty($settings[$name]) )
-				$this->settings[$name] = $settings[$name];
+				$this->settings[$name] = stripslashes_deep($settings[$name]);
 			else
 				$this->settings[$name] = $default;
 		}
