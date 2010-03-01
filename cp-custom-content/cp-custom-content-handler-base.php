@@ -172,11 +172,20 @@ abstract class CP_Custom_Content_Handler_Base
 			global $wp_rewrite;
 			$permastructure = $this->get_type_permastructure();
 			$structure = $permastructure['structure'];
+			$front = substr($structure, 0, strpos($structure, '%'));
+
 			$structure = str_replace('%identifier%', $permastructure['identifier'], $structure);
-			$rewrite_rules = $wp_rewrite->generate_rewrite_rule($structure);
+			$rewrite_rules = $wp_rewrite->generate_rewrite_rules($structure, EP_NONE, true, true, true, true, true);
 			
-			//add dates base urls if structure contains them
-			if(false !== strpos($structure, '%year%'))
+			//build a rewrite rule from just the identifier if it is the first token		
+			preg_match('/%.+?%/', $permastructure['structure'], $tokens);
+			if($tokens[0] == '%identifier%')
+			{
+				$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($front.$permastructure['identifier'].'/'), $rewrite_rules);
+				$rewrite_rules[$front.$permastructure['identifier'].'/?$'] = 'index.php?paged=1';
+			}
+
+			if(false !== strpos($structure, '%year%') && false)
 			{
 				//remove single identifiers from structure
 				$date_structure = str_replace(array('%postname%', '%post_id%', '%second%'), '', $structure);
@@ -208,7 +217,11 @@ abstract class CP_Custom_Content_Handler_Base
 			}
 			foreach($rewrite_rules as $regex => $redirect)
 			{
-				$redirect .= '&post_type='.$this->get_content_type();
+				if(strpos($redirect, 'attachment=') === false)
+				{
+					//don't set the post_type for attachments
+					$redirect .= '&post_type='.$this->get_content_type();
+				}
 				if(0 < preg_match_all('@\$([0-9])@', $redirect, $matches))
 				{
 					for($i = 0; $i < count($matches[0]); $i++)
