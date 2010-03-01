@@ -185,36 +185,6 @@ abstract class CP_Custom_Content_Handler_Base
 				$rewrite_rules[$front.$permastructure['identifier'].'/?$'] = 'index.php?paged=1';
 			}
 
-			if(false !== strpos($structure, '%year%') && false)
-			{
-				//remove single identifiers from structure
-				$date_structure = str_replace(array('%postname%', '%post_id%', '%second%'), '', $structure);
-				if(false !== strpos($structure, '%monthnum%'))
-				{
-					if(false !== strpos($structure, '%day%'))
-					{
-						if(false !== strpos($structure, '%hour%'))
-						{
-							if(false !== strpos($structure, '%minute%'))
-							{
-								$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rule($date_structure), $rewrite_rules);
-								$date_structure = str_replace('%minute%', '', $date_structure);
-								$date_structure = preg_replace('#/+#', '/', $date_structure);
-							}
-							$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_DATE), $rewrite_rules);
-							$date_structure = str_replace('%hour%', '', $date_structure);
-							$date_structure = preg_replace('#/+#', '/', $date_structure);
-						}
-						$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_DAY), $rewrite_rules);
-						$date_structure = str_replace('%day%', '', $date_structure);
-						$date_structure = preg_replace('#/+#', '/', $date_structure);
-					}
-					$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_MONTH), $rewrite_rules);
-					$date_structure = str_replace('%monthnum%', '', $date_structure);
-					$date_structure = preg_replace('#/+#', '/', $date_structure);
-				}
-				$rewrite_rules = array_merge($wp_rewrite->generate_rewrite_rules($date_structure, EP_YEAR), $rewrite_rules);
-			}
 			foreach($rewrite_rules as $regex => $redirect)
 			{
 				if(strpos($redirect, 'attachment=') === false)
