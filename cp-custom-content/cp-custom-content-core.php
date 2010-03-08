@@ -95,14 +95,15 @@ class CP_Custom_Content_Core
 			$handler->add_custom_hooks();
 			
 			$args = array(
-				'label' => $handler->get_type_label(), 
+				'label' => $handler->get_type_label_plural(),
+				'singular_label' => $handler->get_type_label(), 
 				'publicly_queryable' => $handler->get_type_publicly_queryable(),
-				'exclude_from_search' => $handler->get_type_exclude_from_search(), 
+				'exclude_from_search' => $handler->get_type_exclude_from_search() && $handler->get_type_publicly_queryable(), 
 				'public' => $handler->get_type_is_public(), 
 				'hierarchical'=> $handler->get_type_is_hierarchical(), 
 				'capability_type' => $handler->get_type_capability_type(), 
 				'supports'=>$handler->get_type_supports());
-
+				
 			if($edit_link = $handler->get_type_edit_link())
 			{
 				$args['_edit_link'] = $edit_link;
