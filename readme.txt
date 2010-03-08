@@ -12,7 +12,7 @@ Adds ability to create custom content types (post_types) and taxonomies to your 
 
 CMS Press opens up the ability to create and manage custom content types and taxonomies for your WordPress site.   
 It adds the flexibilty to have more than just posts and pages for content by allowing the user to register their
-own post_types that can use their sperate theming from the post and page template along with its own permalink structure.
+own post_types that can use their separate theming from the post and page template along with its own permalink structure.
 
 Along with custom post_types, CMS Press gives users the also register their own taxonomies.  With the addition of
 custom taxonomies, a user can tag or categorize content separate from the default tags and categories.
