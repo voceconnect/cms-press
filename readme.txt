@@ -6,12 +6,12 @@ Requires at least: 2.9
 Tested up to: 2.9
 Stable tag: trunk
 
-Adds ability to create custom content types (post_types) and taxonomies to your wordpress installation.
+Adds ability to create custom content types (post_types) and taxonomies to your WordPress installation.
 
 == Description ==
 
 CMS Press opens up the ability to create and manage custom content types and taxonomies for your WordPress site.   
-It adds the flexibilty to have more than just posts and pages for content by allowing the user to register their
+It adds the flexibility to have more than just posts and pages for content by allowing the user to register their
 own post_types that can use their separate theming from the post and page template along with its own permalink structure.
 
 Along with custom post_types, CMS Press gives users the also register their own taxonomies.  With the addition of
@@ -40,6 +40,16 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
-
+= 0.1.RC =
+* updated post_type registration to latest HEAD
+* readme.txt fixes
+= 0.1.Beta.2 =
+* added back hierarchical taxonomy support for WP 3.0
+* improved permalink structure handling
+* moved legacy for WP 2.9 support to separate area
+* fixes to preview urls for drafts
+* altered menu position of taxonomies for WP 2.9
+* il8n updates
+* misc bug fixes
 = 0.1.Beta =
 * Initial Beta Release
