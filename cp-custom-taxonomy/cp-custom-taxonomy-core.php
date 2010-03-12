@@ -48,7 +48,7 @@ class CP_Custom_Taxonomy_Core
 		{
 			$args = array(
 				'hierarchical'=>$handler->get_taxonomy_is_hierarchical(),
-				'label'=>$handler->get_taxonomy_label(),
+				'label'=>$handler->get_taxonomy_label_plural(),
 				'query_var'=> $handler->get_taxonomy_query_var(),
 				'rewrite'=>$handler->get_taxonomy_rewrite()
 			);
@@ -56,7 +56,7 @@ class CP_Custom_Taxonomy_Core
 				$args['update_count_callback'] = $callback;
 			
 			register_taxonomy($handler->get_taxonomy_name(), $handler->get_object_types(), $args);
-			if(version_compare(get_wp_version(), '3.0-dev', '<'))
+			if(version_compare(get_wp_version(), '3.0-dev', '<') && $handler->get_taxonomy_is_hierarchical())
 			{
 				add_action('admin_menu', array($handler, 'register_management_page'));
 			}
