@@ -27,7 +27,6 @@ if ( isset($_GET['revision']) )
 	$messages[5] = sprintf( __($content_title.' restored to revision from %s'), wp_post_revision_title( (int) $_GET['revision'], false ) );
 
 $notice = false;
-$notices[1] = sprintf(__( 'There is an autosave of this %s that is more recent than the version below.  <a href="%s">View the autosave</a>.' ), $post_type);
 
 if ( 0 == $post_ID)
 {
@@ -44,7 +43,7 @@ else
 	$form_extra = "<input type='hidden' id='post_ID' name='post_ID' value='$post_ID' />";
 	$autosave = wp_get_post_autosave( $post_ID );
 	if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql2date( 'U', $post->post_modified_gmt, false ) )
-		$notice = sprintf( $notices[1], get_edit_post_link( $autosave->ID ) );
+		$notice = sprintf( __( 'There is an autosave of this %s that is more recent than the version below.  <a href="%s">View the autosave</a>.' ), $post_type, get_edit_post_link( $autosave->ID ) );
 }
 
 $temp_ID = (int) $temp_ID;
