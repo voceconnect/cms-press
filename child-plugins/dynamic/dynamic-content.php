@@ -619,7 +619,7 @@ class Dynamic_Content_Builder
 		else 
 		{
 			$perma_structure = $permastructure['structure'];
-			if(!$add && false === strpos('%identifier%', $perma_structure))
+			if(!$add && false === strpos($perma_structure, '%identifier%'))
 			{
 				$permalink_warnings[] = __("Warning: The permalink structure must contain the %identifier% term.");
 			}
