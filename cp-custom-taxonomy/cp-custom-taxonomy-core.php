@@ -56,9 +56,16 @@ class CP_Custom_Taxonomy_Core
 				$args['update_count_callback'] = $callback;
 			
 			register_taxonomy($handler->get_taxonomy_name(), $handler->get_object_types(), $args);
-			if(version_compare(get_wp_version(), '3.0-dev', '<') && $handler->get_taxonomy_is_hierarchical())
+			if(version_compare(get_wp_version(), '3.0-dev', '<'))
 			{
-				add_action('admin_menu', array($handler, 'register_management_page'));
+				if($handler->get_taxonomy_is_hierarchical())
+				{
+					add_action('admin_menu', array($handler, 'register_management_page'));
+				}
+				if(in_array('page', $handler->get_object_types()))
+				{
+					add_action('do_meta_boxes', array($handler, 'add_page_taxonomy_support'), 10, 2);
+				}
 			}
 		}
 	}

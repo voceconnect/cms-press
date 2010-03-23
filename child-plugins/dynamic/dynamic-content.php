@@ -501,6 +501,10 @@ class Dynamic_Content_Builder
 	 */
 	public function add_content_type_page()
 	{
+		if(!current_user_can('manage_content_types'))
+		{
+			wp_die("You do not have sufficient permissions to access this page");
+		}
 		?>
 		<div class="wrap">
 			<?php screen_icon('content_type'); ?>

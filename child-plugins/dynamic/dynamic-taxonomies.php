@@ -450,6 +450,10 @@ class Dynamic_Taxonomy_Builder
 	 */
 	public function add_taxonomy_page()
 	{
+		if(!current_user_can('manage_content_types'))
+		{
+			wp_die("You do not have sufficient permissions to access this page");
+		}
 		?>
 		<div class="wrap">
 			<?php screen_icon('taxonomy'); ?>
