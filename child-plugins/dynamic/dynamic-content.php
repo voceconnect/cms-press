@@ -20,7 +20,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
+			'supports' => array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
 			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
 		
@@ -278,6 +278,8 @@ class Dynamic_Content_Builder
 	public function get_standard_features()
 	{
 		return array(
+			'title' => array('label' => __('Title'), 'description' => __('Adds title field.')),
+			'editor' => array('label' => __('Editor'), 'description' => __('Adds content editor.')),
 			'post-thumbnails' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
 			'excerpts' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
 			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')), 

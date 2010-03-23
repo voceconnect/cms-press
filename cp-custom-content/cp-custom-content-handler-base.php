@@ -126,7 +126,7 @@ abstract class CP_Custom_Content_Handler_Base
 	 */
 	public function get_type_supports()
 	{
-		return array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions');
+		return array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions');
 	}
 	
 	public function get_type_permastructure()
