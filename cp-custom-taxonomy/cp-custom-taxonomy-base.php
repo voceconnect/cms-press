@@ -118,6 +118,13 @@ abstract class CP_Custom_Taxonomy_Base
 
 	}
 	
+	public function add_page_taxonomy_support($page, $context)
+	{
+		if('page' == $page && 'side' == $context)
+		{
+			add_meta_box('tagsdiv-' . $this->get_taxonomy_name(), $this->get_taxonomy_label_plural(), 'post_tags_meta_box', 'page', 'side', 'core');
+		}
+	}
 	/**
 	 * END WP 2.9 ONLY METHODS
 	 */
