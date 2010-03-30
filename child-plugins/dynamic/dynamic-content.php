@@ -20,7 +20,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
+			'supports' => array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
 			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
 		
@@ -278,6 +278,8 @@ class Dynamic_Content_Builder
 	public function get_standard_features()
 	{
 		return array(
+			'title' => array('label' => __('Title'), 'description' => __('Adds title field.')),
+			'editor' => array('label' => __('Editor'), 'description' => __('Adds content editor.')),
 			'post-thumbnails' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
 			'excerpts' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
 			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')), 
@@ -596,10 +598,40 @@ class Dynamic_Content_Builder
 	 */
 	private function edit_content_type_form($content_handler, $add = true)
 	{
+		if(!empty($_REQUEST['notice']))
+		{
+			?><div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div><?php
+		}
+		$permastructure = $content_handler->get_type_permastructure();
+		if( empty($permastructure['identifier']) )
+		{
+			$perma_identifier = $content_handler->get_content_type();
+			if(!$add) $permalink_warnings[] = __("Warning: Content Type Identifier should not be empty.");
+		}
+		else 
+		{
+			$perma_identifier = $permastructure['identifier'];
+		}
+		if( empty($permastructure['structure']) )
+		{
+			$perma_structure = '%identifier%'.get_option('permalink_structure');
+		}
+		else 
+		{
+			$perma_structure = $permastructure['structure'];
+			if(!$add && false === strpos($perma_structure, '%identifier%'))
+			{
+				$permalink_warnings[] = __("Warning: The permalink structure must contain the %identifier% term.");
+			}
+		}
 		?>
-		<?php if(!empty($_REQUEST['notice'])): ?>
-			<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
-		<?php endif; ?>		
+		<?php if(count($permalink_warnings)) : ?>
+			<?php foreach($permalink_warnings as $permalink_warning) :?>
+				<?php if(!empty($_REQUEST['notice'])): ?>
+				<div class="updated"><p><strong><?php echo stripslashes($permalink_warning)?></strong></div>
+			<?php endif; ?>	
+			<?php endforeach; ?>
+		<?php endif;?>		
 		<form method="post" action="<?php $this->get_edit_content_type_url($content_handler->get_content_type())?>">
 			<?php if($add) : ?>
 				<input type="hidden" name="action" value="add_content_type" />
@@ -685,26 +717,6 @@ class Dynamic_Content_Builder
 			<br />
 			<h3><?php _e('Permalink Structure')?></h3>
 			<p><span class="description">This only applies to Content Types that are Publicly Queryable.</span></p>
-			<?php
-			$permastructure = $content_handler->get_type_permastructure();
-			if( empty($permastructure['identifier']) )
-			{
-				$perma_identifier = $content_handler->get_content_type();
-				if(!$add) $permalink_warnings[] = __("Content Type Identifier should not be empty.");
-			}
-			else 
-			{
-				$perma_identifier = $permastructure['identifier'];
-			}
-			if( empty($permastructure['structure']) )
-			{
-				$perma_structure = '%identifier%'.get_option('permalink_structure');
-			}
-			else 
-			{
-				$perma_structure = $permastructure['structure'];
-			}
-			?>
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row"><label for="permastructure_identifier"><?php _e('Content Type Identifier');?></label></th>
