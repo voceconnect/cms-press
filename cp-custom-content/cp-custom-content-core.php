@@ -242,8 +242,20 @@ class CP_Custom_Content_Core
 				add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', sprintf(__('Edit %s'), $handler->get_type_label()), __('Edit'), 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
 				$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', sprintf(__('Add %s'), $handler->get_type_label()), __('Add New'), 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
 				add_action('load-'.$page_hook, array($handler, 'setup_add_page'));
+				
+				//fix for 2.9 where it blindly replaces '-add' and '-new' in the screen handling.
+				$post_type = $handler->get_content_type();
+				if(0 === strpos($post_type, 'add') || 0 === strpos($post_type, 'new'))
+				{
+					add_filter(str_replace(array('-add', '-new'), '', 'manage_' . $post_type . '_page_cp-custom-content/add-'.$post_type.'_columns'), array($this, 'screen_fix_filter'), 10, 1);
+				}
 			}
 		}
+	}
+	
+	public function screen_fix_filter($columns)
+	{
+		return wp_manage_pages_columns();
 	}
 	
 	/**
