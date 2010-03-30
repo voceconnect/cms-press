@@ -40,7 +40,9 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
-= 0.1 =
+= 0.1.1 =
+* added work around for WP 2.9 that was keeping users from using post_types that started with 'add' or 'new' due to WP bug.
+= 0.1.0 =
 * added permalink warnings
 * added permission checks
 * added title and editor support handling for wp 3.0
