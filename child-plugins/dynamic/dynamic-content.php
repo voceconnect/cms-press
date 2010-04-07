@@ -729,6 +729,10 @@ class Dynamic_Content_Builder
 					<td>
 						<input type="text" class="regular-text code" id="permastructure_structure" name="permastructure[structure]" value="<?php echo esc_attr($perma_structure); ?>"/>
 						<span class="description"><?php _e('This will be custom URL structure for this content type. These follow WP\'s normal <a href="http://codex.wordpress.org/Using_Permalinks">permalink tags</a>, but must also include the content type \'%identifier%\'.')?></span>
+						<br />
+						<span class="description">
+						Allowed tags: %year%, %monthnum%, %day%, %hour%, %minute%, %second%, %postname%, %post_id%, 
+						</span>
 					</td>
 				</tr>
 				</tr>
