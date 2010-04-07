@@ -199,6 +199,10 @@ abstract class CP_Custom_Content_Handler_Base
 						$redirect = str_replace($matches[0][$i], '$matches['.$matches[1][$i].']', $redirect);
 					}
 				}
+				if(version_compare(get_wp_version(), '3.0-dev', '>='))
+				{
+					$redirect = str_replace('name=', $this->get_content_type().'=', $redirect);
+				}
 				add_rewrite_rule($regex, $redirect, 'top');
 			}
 		}
