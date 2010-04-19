@@ -10,7 +10,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		
 	public function __construct($content_type = '', $settings = array())
 	{
-		$this->content_type = sanitize_user(strtolower($content_type));
+		$this->content_type = sanitize_title_with_dashes(strtolower($content_type));
 	 	$default_settings = array(
 			'label' => $content_type,
 			'label_plural' => $content_type,

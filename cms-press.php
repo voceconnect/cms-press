@@ -81,5 +81,5 @@ function on_cmspress_activation()
 		$role->add_cap('manage_taxonomies');
 	}
 }
-register_activation_hook(__FILE__, 'on_cmspress_activation');
+register_activation_hook(basename(dirname(__FILE__)).'/'.basename(__FILE__), 'on_cmspress_activation');
 ?>

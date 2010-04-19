@@ -437,7 +437,7 @@ class CP_Custom_Content_Core
 	 */
 	public function parse_request($wp)
 	{
-		if(isset($wp->query_vars['post_type']))
+		if(!is_admin() && isset($wp->query_vars['post_type']))
 		{
 			if( ($handler = $this->get_content_handler($wp->query_vars['post_type'])) && !$handler->get_type_publicly_queryable())
 			{
