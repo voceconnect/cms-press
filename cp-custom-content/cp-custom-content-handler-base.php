@@ -5,35 +5,8 @@
  * All custom content handlers should extend this class
  *
  */
-abstract class CP_Custom_Content_Handler_Base
+abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Handler
 {
-	/**
-	 * @todo is this used?
-	 *
-	 * @var unknown_type
-	 */
-	protected $metadata;
-	
-	/**
-	 * Returns the post_type for the custom content
-	 *
-	 * @return string
-	 */
-	abstract public function get_content_type();
-	
-	/**
-	 * Returns the name of the custom content
-	 *
-	 * @return string
-	 */
-	abstract public function get_type_label();
-	
-	/**
-	 * Returns the plural form of the custom content name
-	 *
-	 * @return string
-	 */
-	abstract public function get_type_label_plural();
 	
 	/**
 	 * Returns whether the post_type is public/Shows in admin menu
@@ -86,16 +59,6 @@ abstract class CP_Custom_Content_Handler_Base
 	}
 	
 	/**
-	 * Returns whether the content type can be queried publicly
-	 *
-	 * @return bool
-	 */
-	public function get_type_is_publicly_queryable()
-	{
-		return false;
-	}
-	
-	/**
 	 * returns the edit link for the content type
 	 *
 	 * @return unknown
@@ -126,12 +89,22 @@ abstract class CP_Custom_Content_Handler_Base
 	 */
 	public function get_type_supports()
 	{
-		return array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions');
+		return array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions');
 	}
 	
 	public function get_type_permastructure()
 	{
-		return array('identifier' => $this->get_content_type(), 'structure' => '%identifier%/'.get_option('permalink_structure'));
+		return array('identifier' => $this->get_type_query_var(), 'structure' => '%identifier%/'.get_option('permalink_structure'));
+	}
+	
+	public function get_type_rewrite()
+	{
+		return false;
+	}
+	
+	public function get_type_query_var()
+	{
+		return $false;
 	}
 	
 	/**
@@ -173,7 +146,7 @@ abstract class CP_Custom_Content_Handler_Base
 			$permastructure = $this->get_type_permastructure();
 			$structure = $permastructure['structure'];
 			$front = substr($structure, 0, strpos($structure, '%'));
-
+			$type_query_var = $this->get_type_query_var();
 			$structure = str_replace('%identifier%', $permastructure['identifier'], $structure);
 			$rewrite_rules = $wp_rewrite->generate_rewrite_rules($structure, EP_NONE, true, true, true, true, true);
 			
@@ -199,9 +172,9 @@ abstract class CP_Custom_Content_Handler_Base
 						$redirect = str_replace($matches[0][$i], '$matches['.$matches[1][$i].']', $redirect);
 					}
 				}
-				if(version_compare(get_wp_version(), '3.0-dev', '>='))
+				if(version_compare(get_wp_version(), '3.0-dev', '>=') && $type_query_var)
 				{
-					$redirect = str_replace('name=', $this->get_content_type().'=', $redirect);
+					$redirect = str_replace('name=', $type_query_var.'=', $redirect);
 				}
 				add_rewrite_rule($regex, $redirect, 'top');
 			}
@@ -224,7 +197,7 @@ abstract class CP_Custom_Content_Handler_Base
 			$post = &get_post($id);
 		}
 	
-		if ( empty($post->ID) || $this->get_content_type() != $post->post_type ) return $permalink;
+		if ( empty($post->ID) || $this->get_content_type() != $post->post_type || $this->get_type_is_hierarchical() ) return $permalink;
 		
 		$rewritecode = array(
 			'%identifier%',
@@ -904,4 +877,119 @@ abstract class CP_Custom_Content_Handler_Base
 		return;
 	}
 
+}
+
+interface iCP_Custom_Content_Handler
+{
+	
+	/**
+	 * Returns the post_type for the custom content
+	 *
+	 * @return string
+	 */
+	public function get_content_type();
+	
+	/**
+	 * Returns the name of the custom content
+	 *
+	 * @return string
+	 */
+	public function get_type_label();
+	
+	/**
+	 * Returns the plural form of the custom content name
+	 *
+	 * @return string
+	 */
+	public function get_type_label_plural();
+	
+	/**
+	 * Returns whether the post_type is public/Shows in admin menu
+	 *
+	 * @return bool
+	 */
+	function get_type_is_public();
+	
+	/**
+	 * returns whether the post_type is hierarchical
+	 *
+	 * @return bool
+	 */
+	public function get_type_is_hierarchical();
+	
+	/**
+	 * returns the permission type of the post_type
+	 *
+	 * @return string
+	 */
+	public function get_type_capability_type();
+	
+	/**
+	 * returns whether the post_type should be included in search results
+	 *
+	 * @return bool
+	 */
+	public function get_type_exclude_from_search();
+	
+	/**
+	 * returns whether the post_type should be allowed as post_type public query_var
+	 *
+	 * @return bool
+	 */
+	public function get_type_publicly_queryable();
+	
+	/**
+	 * returns the edit link for the content type
+	 *
+	 * @return unknown
+	 */
+	public function get_type_edit_link();
+	
+	/**
+	 * Returns the url to the icon for the content type
+	 *
+	 * @return string
+	 */
+	public function get_type_icon_url();
+	
+	/**
+	 * Returns an array of features the content type supports
+	 *
+	 * @return array
+	 */
+	public function get_type_supports();
+	
+	public function get_type_permastructure();
+	
+	/**
+	 * Place holder method for adding content_type specific hooks
+	 *
+	 */
+	public function add_custom_hooks();
+	
+	/**
+	 * Registers the rewrite rules for the content_type with the system.
+	 *
+	 */
+	public function add_rewrite_rules();
+	
+	/**
+	 * Permalink handling for post_type
+	 *
+	 * @param string $permalink
+	 * @param objecy $post
+	 * @param bool $leavename
+	 * @return string
+	 */
+	public function post_link($permalink, $id, $leavename = false);
+	
+	/**
+	 * registers the current content handler.  Child plugins should
+	 * register this function to fire on the 'setup_custom_content' action
+	 *
+	 * @example add_action('setup_custom_content', array($handler, 'on_setup_custom_content'));
+	 *
+	 */
+	public function on_setup_custom_content();
+	
 }

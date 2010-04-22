@@ -102,15 +102,20 @@ class CP_Custom_Content_Core
 				'public' => $handler->get_type_is_public(), 
 				'hierarchical'=> $handler->get_type_is_hierarchical(), 
 				'capability_type' => $handler->get_type_capability_type(), 
-				'supports'=>$handler->get_type_supports());
+				'supports'=>$handler->get_type_supports(),
+				'rewrite' => $handler->get_type_rewrite(),
+				'query_var' => $handler->get_type_query_var()
+			);
 				
 			if($edit_link = $handler->get_type_edit_link())
 			{
 				$args['_edit_link'] = $edit_link;
 			}
 			register_post_type($handler->get_content_type(), $args);
-			$handler->add_rewrite_rules();
-				
+			if(!function_exists('wpcom_is_vip'))
+			{
+				$handler->add_rewrite_rules();
+			}
 		}
 		
 		if(version_compare(get_wp_version(), '3.0-dev', '<'))

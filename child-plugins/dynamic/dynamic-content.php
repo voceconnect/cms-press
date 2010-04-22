@@ -195,8 +195,6 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		return (array) $this->settings['supports'];
 	}
 	
-	
-	
 }
 
 class Dynamic_Content_Builder
@@ -279,9 +277,10 @@ class Dynamic_Content_Builder
 	{
 		return array(
 			'title' => array('label' => __('Title'), 'description' => __('Adds title field.')),
+			'author' => array('label' => __('Author'), 'description' => __('Adds author field.')),
 			'editor' => array('label' => __('Editor'), 'description' => __('Adds content editor.')),
-			'post-thumbnails' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
-			'excerpts' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
+			'thumbnail' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
+			'excerpt' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
 			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')), 
 			'custom-fields' => array('label' => __('Custom Fields'), 'description' => __('Adds the ability to add custom fields to the content type.')), 
 			'comments' => array('label' => __('Comments'), 'description' => __('Adds comment management for the content type.')), 

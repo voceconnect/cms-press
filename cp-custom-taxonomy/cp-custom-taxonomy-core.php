@@ -50,7 +50,8 @@ class CP_Custom_Taxonomy_Core
 				'hierarchical'=>$handler->get_taxonomy_is_hierarchical(),
 				'label'=>$handler->get_taxonomy_label_plural(),
 				'query_var'=> $handler->get_taxonomy_query_var(),
-				'rewrite'=>$handler->get_taxonomy_rewrite()
+				'rewrite'=>$handler->get_taxonomy_rewrite(),
+				'show_ui' => $handler->get_taxonomy_show_ui()
 			);
 			if(false !== ($callback = $handler->get_taxonomy_update_count_callback()))
 				$args['update_count_callback'] = $callback;
