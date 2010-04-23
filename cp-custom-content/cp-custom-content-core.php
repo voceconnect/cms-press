@@ -319,7 +319,7 @@ class CP_Custom_Content_Core
 	 */
 	public function filter_screen_meta_screen($screen)
 	{
-		$post_type = array_pop(split('-', $screen));
+		$post_type = str_replace(array('/add-', '/manage-'), '', substr($screen, strpos($screen, '/')));
 		if(isset($this->content_handlers[$post_type]))
 		{
 			return $post_type;
