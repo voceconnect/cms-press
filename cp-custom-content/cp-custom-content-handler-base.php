@@ -217,7 +217,6 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 		$permastructure = $this->get_type_permastructure();
 		$identifier = $permastructure['identifier'];
 		$permalink = $permastructure['structure'];
-	
 		if ( '' != $permalink && !in_array($post->post_status, array('draft', 'pending', 'auto-draft')) ) 
 		{
 			$unixtime = strtotime($post->post_date);
@@ -361,28 +360,6 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 		return $columns;
 	}
 
-	/**
-	 * Maps post_type specific capabilities to generic 'post' capabilities.  This is a temporary fix
-	 * until a better permission system has been created and until core has all post_type specific
-	 * permission checks refined.
-	 *
-	 * @todo remove this function once permissions have been created
-	 *
-	 * @param array $caps
-	 * @param string $cap
-	 * @param int $user_id
-	 * @param array $args
-	 * @return array
-	 */
-	public function map_meta_cap($caps, $cap, $user_id, $args)
-	{
-		foreach($caps as $key => $capability)
-		{
-			$cap[$key] = str_replace($this->get_content_type(), 'post', $capability);
-		}
-		return $caps;
-	}
-	
 	/**
 	 * Default function for handling manage page post backs.
 	 *
@@ -555,6 +532,11 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	public function update_content($post_ID, $post_data)
 	{
 		$page_ID = edit_post($post_data);
+		if(isset($_POST['wp-preview']) && $_POST['wp-preview'] == 'dopreview')
+		{
+			wp_redirect(get_permalink($post_ID));
+			exit();
+		}
 		$this->redirect_content($page_ID);
 	}
 

@@ -49,8 +49,7 @@ class CP_Custom_Content_Core
 			add_action('wp_ajax_submit_custom_content', array($instance, 'ajax_submit_custom_content'));
 			add_action('autosave_generate_nonces', array($instance, 'autosave_generate_nonces'));
 			add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
-			
-			add_filter('user_has_cap', array($instance, 'filter_user_has_cap'), 10, 3);
+			add_filter('map_meta_cap', array($instance, 'map_meta_cap'), 10, 4);
 		}
 		
 	}
@@ -399,24 +398,19 @@ class CP_Custom_Content_Core
 		}
 	}
 	
-	/**
-	 * Adds custom capabilites needed for core metaboxes
-	 * 
-	 * @param array $allcaps
-	 * @param array $caps
-	 * @param array $args
-	 * @return array
-	 */
-	public function filter_user_has_cap( $allcaps, $caps, $args )
+	public function map_meta_cap($caps, $cap, $user_id, $args)
 	{
-		if(isset($allcaps['publish_posts']) && $allcaps['publish_posts'])
+		$content_types = array_keys($this->content_handlers);
+		foreach($content_types as $content_type)
 		{
-			foreach ($this->content_handlers as $handler)
+			if(false !== strpos($cap, $content_type))
 			{
-				$allcaps["publish_{$handler->get_content_type()}s"] = true;
+				$args = array_merge( array( str_replace($content_type, 'post', $caps[0]), $user_id ), $args );
+				$caps = call_user_func_array( 'map_meta_cap',  $args);
+				break;
 			}
 		}
-		return $allcaps;
+		return $caps;
 	}
 	
 	/**
@@ -449,7 +443,7 @@ class CP_Custom_Content_Core
 			}
 		}
 	}
-
+	
 	/**
 	 * END WP 2.9 ONLY METHODS
 	 */

@@ -53,7 +53,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		}
 		else 
 		{
-			$permastructure['identifier'] = trim($permastructure['identifier'], '/');
+			$permastructure['identifier'] = sanitize_title_with_dashes(trim($permastructure['identifier'], '/'));
 		}
 		$permastructure['structure'] = str_replace(array('%category%/', '%tag%/'), '', $permastructure['structure']);
 		if ( !isset($permastructure['structure']) )
