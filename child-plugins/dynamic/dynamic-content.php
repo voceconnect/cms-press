@@ -154,8 +154,6 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		return $this->get_setting('permastructure', parent::get_type_permastructure());
 	}
 	
-	
-	
 	/**
 	 * Updates a setting with the given value.  Will only update settings that currently exist.
 	 *
@@ -392,7 +390,7 @@ class Dynamic_Content_Builder
 	public function on_setup_custom_content()
 	{
 		$content_types = $this->get_content_handlers();
-		foreach ($content_types as $content_type => $dc_handler)
+		foreach ($content_types as $dc_handler)
 		{
 			if(is_a($dc_handler, 'Dynamic_Content_Handler'))
 			{
@@ -428,7 +426,7 @@ class Dynamic_Content_Builder
 	 */
 	public function add_admin_menu()
 	{
-		$hook = add_menu_page(__('CMS Press'), __('CMS Press'), 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
+		add_menu_page(__('CMS Press'), __('CMS Press'), 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
 		$hook = add_submenu_page('cms-press/manage-content-types', __('Edit Content Types'), 'Edit Content Types', 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
 		add_action('load-'.$hook, array($this, 'on_load_manage_content_types_page'));
 		
@@ -901,25 +899,5 @@ class Dynamic_Content_Builder
 		<br class="clear" />
 		<?php
 	}
-
-	/**
-	 * Registers the metabox handler class with the 
-	 *
-	 * @param string $meta_handler_class the name of the Metabox_Handler_Base child class
-	 * @return bool FALSE if handler class is already registerd or does not extend Metabox_Handler_Base
-	 */
-	public function register_metabox_handler($meta_handler_class)
-	{
-		if(!in_array($meta_handler_class, $this->meta_handlers) && in_array('Metabox_Handler_Base', class_parents($meta_handler_class)))
-		{
-			$this->meta_handlers[] = $meta_handler_class;
-			true;
-		}
-		return false;
-	}
 	
-	public function get_metabox_handler_classes()
-	{
-		return $this->meta_handlers;
-	}
 }

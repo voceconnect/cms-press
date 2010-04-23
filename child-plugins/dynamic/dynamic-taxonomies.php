@@ -262,7 +262,9 @@ class Dynamic_Taxonomy_Builder
 	 */
 	public function save_taxonomies()
 	{
+		global $wp_rewrite;
 		update_option(self::DYNAMIC_TAXONOMIES_KEY, $this->taxonomies);
+		$wp_rewrite->flush_rules();
 	}
 	
 	/**
@@ -697,24 +699,4 @@ class Dynamic_Taxonomy_Builder
 		<?php
 	}
 
-	/**
-	 * Registers the metabox handler class with the 
-	 *
-	 * @param string $meta_handler_class the name of the Metabox_Handler_Base child class
-	 * @return bool FALSE if handler class is already registerd or does not extend Metabox_Handler_Base
-	 */
-	public function register_metabox_handler($meta_handler_class)
-	{
-		if(!in_array($meta_handler_class, $this->meta_handlers) && in_array('Metabox_Handler_Base', class_parents($meta_handler_class)))
-		{
-			$this->meta_handlers[] = $meta_handler_class;
-			true;
-		}
-		return false;
-	}
-	
-	public function get_metabox_handler_classes()
-	{
-		return $this->meta_handlers;
-	}
 }

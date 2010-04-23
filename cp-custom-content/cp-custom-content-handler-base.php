@@ -104,7 +104,7 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	
 	public function get_type_query_var()
 	{
-		return $false;
+		return false;
 	}
 	
 	/**
@@ -314,6 +314,10 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	}
 
 	/**
+	 * BEGIN WP 2.9 ONLY METHODS
+	 */
+
+	/**
 	 * hides the slugs meta box
 	 * @todo pending patch 'hidden_meta_boxes.patch' submitted to http://core.trac.wordpress.org/ticket/10437
 	 *
@@ -343,10 +347,6 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 			add_filter('manage_' . $this->get_content_type() . '_columns', array($this, 'manage_columns'));
 		}
 	}
-
-	/**
-	 * BEGIN WP 2.9 ONLY METHODS
-	 */
 	
 	/**
 	 * Sets the columns for the edit/add page for the content type.  Default is 2
@@ -841,7 +841,7 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 
 					case 'control_delete':
 						?>
-						<td><?php if ( current_user_can('delete_post', $post->ID) ) { echo "<a href='" . wp_nonce_url("post.php?action=delete&amp;post=$id", 'delete-post_' . $post->ID) . "' class='delete'>" . __('Delete') . "</a>"; } ?></td>
+						<td><?php if ( current_user_can('delete_post', $post->ID) ) { echo "<a href='" . wp_nonce_url("post.php?action=delete&amp;post=$post->ID", 'delete-post_' . $post->ID) . "' class='delete'>" . __('Delete') . "</a>"; } ?></td>
 						<?php
 						break;
 						//end case 'control_delete

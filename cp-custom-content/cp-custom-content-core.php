@@ -215,7 +215,6 @@ class CP_Custom_Content_Core
 	 */
 	public function search_template($template)
 	{
-		global $wp_query;
 		if( $replacement_template = get_query_template('search-'.get_query_var('post_type')) )
 			return $replacement_template;
 		return $template;

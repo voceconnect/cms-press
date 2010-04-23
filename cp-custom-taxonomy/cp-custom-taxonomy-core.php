@@ -37,12 +37,7 @@ class CP_Custom_Taxonomy_Core
 
 	public function setup_custom_taxonomy()
 	{
-		global $wp_rewrite;
 		do_action ( 'setup_custom_taxonomy' );
-
-		$prev_installed_taxonomies = get_option('installed_taxonomies');
-		$installed_taxonomies = array_keys($this->taxonomy_handlers);
-		$has_new_taxonomies = false;
 
 		foreach($this->taxonomy_handlers as $handler)
 		{

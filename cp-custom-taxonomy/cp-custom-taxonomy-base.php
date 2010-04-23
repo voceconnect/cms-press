@@ -52,7 +52,7 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 	 */
 	public function get_taxonomy_update_count_callback()
 	{
-		false;
+		return false;
 	}
 
 	/**
