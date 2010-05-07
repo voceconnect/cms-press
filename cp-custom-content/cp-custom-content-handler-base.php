@@ -58,6 +58,11 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 		return false;
 	}
 	
+	public function get_type_show_ui()
+	{
+		return true;
+	}
+	
 	/**
 	 * returns the edit link for the content type
 	 *
@@ -919,6 +924,8 @@ interface iCP_Custom_Content_Handler
 	 * @return bool
 	 */
 	public function get_type_publicly_queryable();
+	
+	public function get_type_show_ui();
 	
 	/**
 	 * returns the edit link for the content type

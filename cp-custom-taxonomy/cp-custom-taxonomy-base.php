@@ -44,6 +44,26 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 		return null;
 	}
 	
+	public function get_taxonomy_manage_cap()
+	{
+		return null;
+	}
+	
+	public function get_taxonomy_edit_cap()
+	{
+		return null;
+	}
+	
+	public function get_taxonomy_delete_cap()
+	{
+		return null;
+	}
+	
+	public function get_taxonomy_assign_cap()
+	{
+		return null;
+	}
+	
 	/**
 	 * Returns a pointer to the update count callback for the taxonomy
 	 * 
@@ -169,6 +189,14 @@ interface iCP_Custom_Taxonomy
 	 * @return bool|null
 	 */
 	public function get_taxonomy_show_ui();
+	
+	public function get_taxonomy_manage_cap();
+		
+	public function get_taxonomy_edit_cap();
+	
+	public function get_taxonomy_delete_cap();
+	
+	public function get_taxonomy_assign_cap();
 	
 	/**
 	 * returns the object types this taxonomy is associated with

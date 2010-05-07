@@ -97,13 +97,14 @@ class CP_Custom_Content_Core
 				'label' => $handler->get_type_label_plural(),
 				'singular_label' => $handler->get_type_label(), 
 				'publicly_queryable' => $handler->get_type_publicly_queryable(),
-				'exclude_from_search' => $handler->get_type_exclude_from_search() && $handler->get_type_publicly_queryable(), 
+				'exclude_from_search' => $handler->get_type_exclude_from_search(), 
 				'public' => $handler->get_type_is_public(), 
 				'hierarchical'=> $handler->get_type_is_hierarchical(), 
 				'capability_type' => $handler->get_type_capability_type(), 
 				'supports'=>$handler->get_type_supports(),
 				'rewrite' => $handler->get_type_rewrite(),
-				'query_var' => $handler->get_type_query_var()
+				'query_var' => $handler->get_type_query_var(),
+				'show_ui' => $handler->get_type_show_ui()
 			);
 				
 			if($edit_link = $handler->get_type_edit_link())
