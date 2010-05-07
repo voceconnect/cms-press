@@ -3,7 +3,7 @@ Contributors: Michael Pretty
 Donate link: http://voceconnect.com/
 Tags: cms, post types, taxonomies
 Requires at least: 2.9
-Tested up to: 2.9
+Tested up to: 3.0.
 Stable tag: trunk
 
 Adds ability to create custom content types (post_types) and taxonomies to your WordPress installation.
@@ -40,6 +40,13 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.1.2 =
+* updated activation hook to allow symlinking of plugin
+* fixed issue with non queryable post types from correctly listing posts 
+* code cleanup
+* fixed issue with post_types with dashes getting incorrect screen meta
+* corrected preview handling
+* adding latest core registration vars for taxonomies and post_types
 = 0.1.1 =
 * added work around for WP 2.9 that was keeping users from using post_types that started with 'add' or 'new' due to WP bug.
 = 0.1.0 =
