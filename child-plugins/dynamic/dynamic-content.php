@@ -620,6 +620,10 @@ class Dynamic_Content_Builder
 			{
 				$permalink_warnings[] = __("Warning: The permalink structure must contain the %identifier% term.");
 			}
+			if(false !== strpos($perma_structure, array('%tag%', '%category%')))
+			{
+				$permalink_warnings[] = __("Warning: The user of the %tag% or %category% tags is not currently supported by cms-press.");
+			}
 		}
 		?>
 		<?php if(count($permalink_warnings)) : ?>
