@@ -55,7 +55,7 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	 */
 	public function get_type_publicly_queryable()
 	{
-		return false;
+		return true;
 	}
 	
 	public function get_type_show_ui()
@@ -109,7 +109,7 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	
 	public function get_type_query_var()
 	{
-		return false;
+		return $this->get_content_type();
 	}
 	
 	/**
