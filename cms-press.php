@@ -2,7 +2,7 @@
 /**
  * @package CMS Press
  * @author Michael Pretty
- * @version 0.01
+ * @version 0.1.2
  */
 /*
 Plugin Name: CMS Press
