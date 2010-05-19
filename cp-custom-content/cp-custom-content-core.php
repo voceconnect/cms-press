@@ -80,7 +80,6 @@ class CP_Custom_Content_Core
 			return;
 		
 		//check if new post_types were added.
-		/*  removing for now as its firing before the dynamic post types can fire
 		$prev_installed_post_types = get_option('installed_post_types');
 		$installed_post_types = array_keys($this->content_handlers);
 		$has_new_types = false;
@@ -88,7 +87,6 @@ class CP_Custom_Content_Core
 		{
 			$has_new_types = true;
 		}
-		*/
 		
 		foreach($this->content_handlers as $handler)
 		{
@@ -136,13 +134,11 @@ class CP_Custom_Content_Core
 		add_filter("search_template", array($this, 'search_template'), 10, 1);
 
 		//flush the rewrite rules if new content_types were added
-		/*  removing for now as its firing before the dynamic post types can fire
 		if(($has_new_types) && !function_exists('wpcom_is_vip'))
 		{
 			$wp_rewrite->flush_rules();
 			update_option('installed_post_types', $installed_post_types);
 		}
-		*/
 	}
 
 	/**

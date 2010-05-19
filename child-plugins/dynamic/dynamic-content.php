@@ -338,9 +338,10 @@ class Dynamic_Content_Builder
 	
 	public function save_content_types()
 	{
-		global $wp_rewrite;
 		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $this->content_handlers);
-		$wp_rewrite->flush_rules();
+		//deleting the option so that rewrite rules get flushed on next request
+		//flushing them here would include the old rules
+		delete_option('installed_post_types');
 	}
 	
 	/**
