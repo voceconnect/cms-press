@@ -20,7 +20,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
+			'supports' => array('title', 'editor', 'thumbnail', 'author', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
 			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
 		
@@ -32,7 +32,6 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			else
 				$this->settings[$name] = $default;
 		}
-		//$this->settings = shortcode_atts($default_settings, $settings);
 		$this->cleanup_permastructure();
 	}
 	
@@ -339,9 +338,10 @@ class Dynamic_Content_Builder
 	
 	public function save_content_types()
 	{
-		global $wp_rewrite;
 		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $this->content_handlers);
-		$wp_rewrite->flush_rules();
+		//deleting the option so that rewrite rules get flushed on next request
+		//flushing them here would include the old rules
+		delete_option('installed_post_types');
 	}
 	
 	/**
