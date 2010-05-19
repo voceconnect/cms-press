@@ -252,6 +252,10 @@ class CP_Custom_Content_Core
 				if(0 === strpos($post_type, 'add') || 0 === strpos($post_type, 'new'))
 				{
 					add_filter(str_replace(array('-add', '-new'), '', 'manage_' . $post_type . '_page_cp-custom-content/add-'.$post_type.'_columns'), array($this, 'screen_fix_filter'), 10, 1);
+					if($_REQUEST['page'] == plugin_basename(basename(dirname(__FILE__)).'/manage-'.$post_type.'.php'))
+					{
+						add_filter('manage_toplevel_page_cp-custom-content/manages_columns', array($this, 'screen_fix_filter'), 10, 1);
+					}
 				}
 			}
 		}
