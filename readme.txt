@@ -40,6 +40,12 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.1.3 =
+* fixed issue with 2.9s column handling of urls with new or add
+* fixed edit url from front end in 2.9
+* fixed issue with post slug metabox keeping slug from being editable in 2.9
+* updated support arrays to latest core
+* added warnings against use of tag or category
 = 0.1.2 =
 * updated activation hook to allow symlinking of plugin
 * fixed issue with non queryable post types from correctly listing posts 
