@@ -20,7 +20,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'hierarchical' => false,
 			'capability_type' => 'post',
 			'icon_url' => '',
-			'supports' => array('title', 'editor', 'post-thumbnails', 'excerpts', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
+			'supports' => array('title', 'editor', 'thumbnail', 'author', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
 			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
 		
@@ -32,7 +32,6 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			else
 				$this->settings[$name] = $default;
 		}
-		//$this->settings = shortcode_atts($default_settings, $settings);
 		$this->cleanup_permastructure();
 	}
 	
