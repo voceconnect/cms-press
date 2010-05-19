@@ -306,7 +306,7 @@ class CP_Custom_Content_Core
 		if($this->get_content_handler($post->post_type) !== false)
 		{
 			$page = plugin_basename(basename(dirname(__FILE__)).'/manage-'.$post->post_type.'.php');
-			$link ='admin.php?page='.$page.'&post='.$post_ID;
+			$link = admin_url('admin.php?page='.$page.'&post='.$post_ID);
 		}
 		return $link;
 	}
