@@ -133,6 +133,9 @@ class CP_Custom_Content_Core
 		add_filter("date_template", array($this, 'date_template'), 10, 1);
 		add_filter("search_template", array($this, 'search_template'), 10, 1);
 
+		add_filter("index_template", array($this, 'index_template'), 10, 1);
+		add_filter("home_template", array($this, 'index_template'), 10, 1);
+
 		//flush the rewrite rules if new content_types were added
 		if(($has_new_types) && !function_exists('wpcom_is_vip'))
 		{
@@ -220,6 +223,20 @@ class CP_Custom_Content_Core
 		return $template;
 	}
 	
+	public function index_template($template)
+	{
+		if( $replacement_template = get_query_template('index-'.get_query_var('post_type')) )
+			return $replacement_template;
+		return $template;
+	}
+
+	public function home_template($template)
+	{
+		$template = locate_template(array('home.php', 'index.php'));
+		if( $replacement_template = locate_template(array('home-'.get_query_var('post_type').'.php', 'index-'.get_query_var('post_type').'.php', 'home.php', 'index.php')) )
+			return $replacement_template;
+		return $template;
+	}
 	
 	/**
 	 * BEGIN WP 2.9 ONLY METHODS
