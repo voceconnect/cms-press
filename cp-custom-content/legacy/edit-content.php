@@ -9,18 +9,18 @@ $post_type = $this->get_content_type();
 /** END setup content specific variables **/
 
 global $post, $post_ID, $temp_ID; //I hate globals by the way
-$title = $labels->edit_item;
+$title = $labels['edit_item'];
 $editing = true;
 $page_ID = $post_ID = $p = (int) $_GET['post'];
 $post = get_post_to_edit($post_ID);
 
 if (empty($post->ID))
 {
-	wp_die( __('You attempted to edit a '.$labels->singular_name.' that doesn&#8217;t exist. Perhaps it was deleted?') );
+	wp_die( __('You attempted to edit a '.$labels['singular_name'].' that doesn&#8217;t exist. Perhaps it was deleted?') );
 }
 if ( !current_user_can('edit_page', $page_ID) )
 {
-	wp_die( __('You are not allowed to edit this '.$labels->singular_name.'.') );
+	wp_die( __('You are not allowed to edit this '.$labels['singular_name'].'.') );
 }
 if ( 'trash' == $post->post_status )
 {
