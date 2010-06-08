@@ -17,11 +17,11 @@ if ( ! isset( $temp_ID ) )
 
 if ( isset($_GET['message']) )
 	$_GET['message'] = absint( $_GET['message'] );
-$messages[1] = sprintf(__('%s updated. <a href="%s">View %s</a>'), ucfirst($post_type), get_permalink($post_ID), $post_type);
+$messages[1] = sprintf(__('%s updated. <a href="%s">%s</a>'), $labels->singular_name, get_permalink($post_ID), $labels->view_item);
 $messages[2] = __('Custom field updated.');
 $messages[3] = __('Custom field deleted.');
-$messages[5] = sprintf(__('%s published. <a href="%s">View %s</a>'), ucfirst($post_type), get_permalink($post_ID), $post_type);
-$messages[6] = sprintf(__('%s submitted. <a href="%s">Preview %s</a>'), ucfirst($post_type), add_query_arg( 'preview', 'true', get_permalink($post_ID) ), $post_type );
+$messages[5] = sprintf(__('%s published. <a href="%s">%s</a>'), $labels->singular_name, get_permalink($post_ID), $labels->view_item);
+$messages[6] = sprintf(__('%s submitted. <a href="%s">Preview %s</a>'), $labels->singular_name, add_query_arg( 'preview', 'true', get_permalink($post_ID) ), $labels->singular_name );
 
 if ( isset($_GET['revision']) )
 	$messages[5] = sprintf( __($content_title.' restored to revision from %s'), wp_post_revision_title( (int) $_GET['revision'], false ) );

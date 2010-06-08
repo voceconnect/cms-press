@@ -40,6 +40,10 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.1.4 =
+* added capability string management for 3.0
+* fixed checks against empty bool vals (props jimpisaacs)
+* added more advanced label handling, not yet propagated to dynamic handlers.
 = 0.1.3 =
 * fixed issue with 2.9s column handling of urls with new or add
 * fixed edit url from front end in 2.9

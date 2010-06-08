@@ -27,7 +27,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		$this->settings = array();
 		foreach($default_settings as $name => $default) 
 		{
-			if ( !empty($settings[$name]) )
+			if ( isset($settings[$name]) && $settings[$name] !== null )
 				$this->settings[$name] = stripslashes_deep($settings[$name]);
 			else
 				$this->settings[$name] = $default;
@@ -690,6 +690,14 @@ class Dynamic_Content_Builder
 				</tr>
 				*/
 				?>
+				<?php if( version_compare(get_wp_version(), '3.0-dev', '>=')) : ?>
+					<tr valign="top">
+						<th scope="row"><label for="capability_type"><?php _e('Capability Type'); ?></label></th>
+						<td>
+							<input type="text" class="regular-text code" id="capability_type" name="capability_type" value="<?php echo esc_attr($content_handler->get_type_capability_type()); ?>" />
+						</td>
+					</tr>
+				<?php endif; ?>
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Publicly Queryable?'); ?></th>
 					<td>
