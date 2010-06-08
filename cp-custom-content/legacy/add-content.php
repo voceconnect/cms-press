@@ -5,14 +5,12 @@
 
 
 /** setup content specific variables **/
-$content_title = $this->get_type_label();
-$content_title_plural = $this->get_type_label_plural();
+$labels = $this->get_type_labels();
 $post_type = $this->get_content_type();
-global $post;
 /** END setup content specific variables **/
 
 if ( empty($title) )
-	$title = sprintf(__("Add New %s"), $content_title);
+	$title = $labels->add_new_item;
 
 if ( current_user_can('edit_pages') ) {
 	$action = 'post';

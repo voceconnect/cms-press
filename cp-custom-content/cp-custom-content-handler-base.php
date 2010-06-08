@@ -7,7 +7,33 @@
  */
 abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Handler
 {
+	/**
+	 * Labels object instance
+	 *
+	 * @var object
+	 */
+	protected $labels;
 	
+	public function get_type_labels()
+	{
+		if(!isset($this->labels)) {
+			$labels = array(
+				'name' => $this->get_type_label(),
+				'singular_name' => $this->get_type_label_plural(),
+				'add_new' => __('Add New'),
+				'add_new_item' => sprintf( __('Add New %s'), $this->get_type_label() ),
+				'edit_item' => sprintf( __('Edit %s'), $this->get_type_label()),
+				'new_item' => sprintf( __('New %s'), $this->get_type_label() ),
+				'view_item' => sprintf( __('View %s'), $this->get_type_label() ),
+				'search_items' => sprintf( __('Search %s'), $this->get_type_label_plural() ),
+				'not_found' => sprintf( __('No %s found'), $this->get_type_label_plural() ),
+				'not_found_in_trash' => sprintf( __('No %s found in Trash'), $this->get_type_label_plural() ),
+				'parent_item_colon' => sprintf( __('Parent %s:'), $this->get_type_label() )
+			);
+			$this->labels = (object) $labels;
+		}
+		return $this->labels;
+	}
 	/**
 	 * Returns whether the post_type is public/Shows in admin menu
 	 *
@@ -58,9 +84,15 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 		return true;
 	}
 	
+	/**
+	 * Returns whether the ui for the post type should show.
+	 * Defaults to whether the type is public
+	 *
+	 * @return bool
+	 */
 	public function get_type_show_ui()
 	{
-		return true;
+		return $this->get_type_is_public();
 	}
 	
 	/**
@@ -889,6 +921,13 @@ interface iCP_Custom_Content_Handler
 	 * @return string
 	 */
 	public function get_type_label_plural();
+	
+	/**
+	 * Returns the labels array for the custom content type
+	 *
+	 * @return object
+	 */
+	public function get_type_labels();
 	
 	/**
 	 * Returns whether the post_type is public/Shows in admin menu
