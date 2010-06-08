@@ -30,10 +30,11 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 				'not_found_in_trash' => sprintf( __('No %s found in Trash'), $this->get_type_label_plural() ),
 				'parent_item_colon' => sprintf( __('Parent %s:'), $this->get_type_label() )
 			);
-			$this->labels = (object) $labels;
+			$this->labels = $labels;
 		}
 		return $this->labels;
 	}
+	
 	/**
 	 * Returns whether the post_type is public/Shows in admin menu
 	 *
@@ -925,7 +926,7 @@ interface iCP_Custom_Content_Handler
 	/**
 	 * Returns the labels array for the custom content type
 	 *
-	 * @return object
+	 * @return array
 	 */
 	public function get_type_labels();
 	

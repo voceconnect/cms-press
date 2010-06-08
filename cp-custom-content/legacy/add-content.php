@@ -10,7 +10,7 @@ $post_type = $this->get_content_type();
 /** END setup content specific variables **/
 
 if ( empty($title) )
-	$title = $labels->add_new_item;
+	$title = $labels['add_new_item'];
 
 if ( current_user_can('edit_pages') ) {
 	$action = 'post';
