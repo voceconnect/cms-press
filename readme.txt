@@ -40,6 +40,8 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.1.6 =
+* fixed bug with reversing of plural and singular label
 = 0.1.5 =
 * switching labels to array
 = 0.1.4 =
