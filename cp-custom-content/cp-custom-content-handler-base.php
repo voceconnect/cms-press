@@ -18,8 +18,8 @@ abstract class CP_Custom_Content_Handler_Base implements iCP_Custom_Content_Hand
 	{
 		if(!isset($this->labels)) {
 			$labels = array(
-				'name' => $this->get_type_label(),
-				'singular_name' => $this->get_type_label_plural(),
+				'name' => $this->get_type_label_plural(),
+				'singular_name' => $this->get_type_label(),
 				'add_new' => __('Add New'),
 				'add_new_item' => sprintf( __('Add New %s'), $this->get_type_label() ),
 				'edit_item' => sprintf( __('Edit %s'), $this->get_type_label()),
