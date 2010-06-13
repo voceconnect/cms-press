@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: Michael Pretty
+Contributors: prettyboymp
 Donate link: http://voceconnect.com/
 Tags: cms, post types, taxonomies
 Requires at least: 2.9
