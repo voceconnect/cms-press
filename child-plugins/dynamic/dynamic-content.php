@@ -77,6 +77,10 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		return $this->content_type;
 	}
 
+	public function get_settings() {
+		return $this->settings;
+	}
+
 	/**
 	 * Returns the setting if set/else the default
 	 *
@@ -115,7 +119,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 
 	public function get_type_exclude_from_search()
 	{
-		return (bool) $this->get_setting('exclude_from_search', false);
+		return $this->get_setting('exclude_from_search', false);
 	}
 
 	/**
@@ -245,9 +249,7 @@ class Dynamic_Content_Builder
 	 */
 	private function __construct()
 	{
-		$this->content_handlers = get_option(self::DYNAMIC_CONTENT_TYPES_KEY );
-		if(!$this->content_handlers) $this->content_handlers = array();
-
+		$this->get_content_handlers();
 		$this->meta_handlers = array();
 
 		add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -338,7 +340,11 @@ class Dynamic_Content_Builder
 
 	public function save_content_types()
 	{
-		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $this->content_handlers);
+		$content_handlers = array();
+		foreach($this->content_handlers as $post_type => $content_handler) {
+			$content_handlers[$post_type] = $content_handler->get_settings();
+		}
+		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $content_handlers);
 		//deleting the option so that rewrite rules get flushed on next request
 		//flushing them here would include the old rules
 		delete_option('installed_post_types');
@@ -411,10 +417,18 @@ class Dynamic_Content_Builder
 	{
 		if(!isset($this->content_handlers))
 		{
-			$this->content_handlers = get_option('cms-press-custom-content-handlers');
-			if(!is_array($this->content_handlers))
-			{
-				$this->content_handlers = array();
+			$content_handlers = get_option(self::DYNAMIC_CONTENT_TYPES_KEY );
+			if(!$content_handlers) $content_handlers = array();
+			$this->content_handlers = array();
+
+			foreach($content_handlers as $post_type => $handler) {
+				$handler = (array) $handler;
+				if(isset($handler['' . "\0" . 'Dynamic_Content_Handler' . "\0" . 'settings'])) {
+					//import old saved format
+					$this->content_handlers[$post_type] = new Dynamic_Content_Handler($post_type, $handler['' . "\0" . 'Dynamic_Content_Handler' . "\0" . 'settings']);
+				} else {
+					$this->content_handlers[$post_type] = new Dynamic_Content_Handler($post_type, $handler);
+				}
 			}
 		}
 		return $this->content_handlers;
@@ -626,7 +640,7 @@ class Dynamic_Content_Builder
 			}
 		}
 		?>
-		<?php if(count($permalink_warnings)) : ?>
+		<?php if(isset($permalink_warnings) && count($permalink_warnings)) : ?>
 			<?php foreach($permalink_warnings as $permalink_warning) :?>
 				<?php if(!empty($_REQUEST['notice'])): ?>
 				<div class="updated"><p><strong><?php echo stripslashes($permalink_warning)?></strong></div>
