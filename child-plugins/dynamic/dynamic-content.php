@@ -3,11 +3,11 @@
  * Wrapper class for the dynamic content type data instances
  *
  */
-class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base 
+class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 {
 	private $content_type;
 	private $settings;
-		
+
 	public function __construct($content_type = '', $settings = array())
 	{
 		$this->content_type = sanitize_title_with_dashes(strtolower($content_type));
@@ -23,9 +23,9 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'supports' => array('title', 'editor', 'thumbnail', 'author', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
 			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
 		);
-		
+
 		$this->settings = array();
-		foreach($default_settings as $name => $default) 
+		foreach($default_settings as $name => $default)
 		{
 			if ( isset($settings[$name]) && $settings[$name] !== null )
 				$this->settings[$name] = stripslashes_deep($settings[$name]);
@@ -34,23 +34,23 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		}
 		$this->cleanup_permastructure();
 	}
-	
+
 	public function __wakeup()
 	{
 		$this->cleanup_permastructure();
 	}
-	
+
 	public function cleanup_permastructure()
 	{
-		$permastructure = $this->get_setting('permastructure', parent::get_type_permastructure());		
+		$permastructure = $this->get_setting('permastructure', parent::get_type_permastructure());
 		if ( !is_array($permastructure) )
 			$permastructure = array();
-			
+
 		if ( !isset($permastructure['identifier']) )
 		{
 			$permastructure['identifier'] = $this->get_content_type();
 		}
-		else 
+		else
 		{
 			$permastructure['identifier'] = sanitize_title_with_dashes(trim($permastructure['identifier'], '/'));
 		}
@@ -59,14 +59,14 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		{
 			$permastructure['structure'] = '%identifier%/'.get_option('permalink_structure');
 		}
-		else 
+		else
 		{
 			preg_replace('#/+#', '/', '/' . $permastructure['structure']);
 		}
-		
+
 		$this->settings['permastructure'] = $permastructure;
 	}
-	
+
 	/**
 	 * Returns the content_type for the custom content
 	 *
@@ -76,7 +76,11 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->content_type;
 	}
-	
+
+	public function get_settings() {
+		return $this->settings;
+	}
+
 	/**
 	 * Returns the setting if set/else the default
 	 *
@@ -92,7 +96,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Returns the name of the custom content
 	 *
@@ -102,7 +106,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->get_setting('label', $this->get_content_type());
 	}
-		
+
 	/**
 	 * Returns the plural form of the custom content name
 	 *
@@ -117,7 +121,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->get_setting('exclude_from_search', false);
 	}
-	
+
 	/**
 	 * returns whether the post_type should be included in search results
 	 *
@@ -127,22 +131,22 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->get_setting('publicly_queryable', false);
 	}
-	
+
 	public function get_type_is_public()
 	{
 		return $this->get_setting('public', true);
 	}
-	
+
 	public function get_type_is_hierarchical()
 	{
 		return $this->get_setting('hierarchical', false);
 	}
-	
+
 	public function get_type_capability_type()
 	{
 		return $this->get_setting('capability_type', 'post');
 	}
-	
+
 	public function get_type_icon_url()
 	{
 		return $this->get_setting('icon_url', '');
@@ -152,7 +156,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	{
 		return $this->get_setting('permastructure', parent::get_type_permastructure());
 	}
-	
+
 	/**
 	 * Updates a setting with the given value.  Will only update settings that currently exist.
 	 *
@@ -168,7 +172,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Updates settings based on teh given associative array
 	 *
@@ -186,44 +190,44 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 		}
 		return true;
 	}
-	
+
 	public function get_type_supports()
 	{
 		return (array) $this->settings['supports'];
 	}
-	
+
 }
 
 class Dynamic_Content_Builder
 {
 	const DYNAMIC_CONTENT_TYPES_KEY = 'cms_press_dynamic_content_types';
-	
+
 	/**
 	 * Singleton instance of content builder
 	 *
 	 * @var Dynamic_Content_Builder
 	 */
 	private static $instance;
-	
+
 	/**
 	 * Array of saved content types and settings
 	 *
 	 * @var array of Dynamic Content Handlers
 	 */
 	private $content_handlers;
-	
+
 	/**
 	 * Array of Metabox_Handler_Base classes
 	 *
 	 * @var array
 	 */
 	private $meta_handlers;
-	
+
 	public static function Initialize()
 	{
 		self::GetInstance();
 	}
-	
+
 	/**
 	 * Returns the singleton instance of the Dynamic_Content_Builder
 	 *
@@ -237,24 +241,22 @@ class Dynamic_Content_Builder
 		}
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Constructor method set to private so that only one instance
 	 * can be created from the Dynamic_Content_Builder::GetInstance() method
 	 *
 	 */
-	private function __construct() 
+	private function __construct()
 	{
-		$this->content_handlers = get_option(self::DYNAMIC_CONTENT_TYPES_KEY );
-		if(!$this->content_handlers) $this->content_handlers = array();
-		
+		$this->get_content_handlers();
 		$this->meta_handlers = array();
-		
+
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 		add_action('setup_custom_content', array($this, 'on_setup_custom_content'));
 		add_filter('manage_dynamic_content_columns', array($this, 'manage_dynamic_content_columns'));
 	}
-	
+
 	/**
 	 * Returns content handler for the given content type
 	 *
@@ -269,7 +271,7 @@ class Dynamic_Content_Builder
 		}
 		return false;
 	}
-	
+
 	public function get_standard_features()
 	{
 		return array(
@@ -277,14 +279,14 @@ class Dynamic_Content_Builder
 			'author' => array('label' => __('Author'), 'description' => __('Adds author field.')),
 			'editor' => array('label' => __('Editor'), 'description' => __('Adds content editor.')),
 			'thumbnail' => array('label' => __('Thumbnails'), 'description' => __('Adds ability to select a default image for the content.')),
-			'excerpt' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')), 
-			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')), 
-			'custom-fields' => array('label' => __('Custom Fields'), 'description' => __('Adds the ability to add custom fields to the content type.')), 
-			'comments' => array('label' => __('Comments'), 'description' => __('Adds comment management for the content type.')), 
+			'excerpt' => array('label' => __('Excerpts'), 'description' => __('Adds excerpts field to the edit screen.')),
+			'trackbacks' => array('label' => __('Send Trackbacks'), 'description' => __('Adds the ability to manage trackbacks the content type.')),
+			'custom-fields' => array('label' => __('Custom Fields'), 'description' => __('Adds the ability to add custom fields to the content type.')),
+			'comments' => array('label' => __('Comments'), 'description' => __('Adds comment management for the content type.')),
 			'revisions' => array('label' => __('Revisions'), 'description' => __('Adds revision management to the content type.'))
 		);
 	}
-	
+
 	/**
 	 * Returns the url to the manage content types page
 	 *
@@ -300,7 +302,7 @@ class Dynamic_Content_Builder
 		$query_args['page'] = 'cms-press/manage-content-types';
 		return admin_url('admin.php?'.http_build_query( $query_args ));
 	}
-	
+
 	public function get_add_content_type_url($query_args = array())
 	{
 		if(!is_array($query_args))
@@ -310,7 +312,7 @@ class Dynamic_Content_Builder
 		$query_args['page'] = 'cms-press/add-content-type';
 		return admin_url('admin.php?'.http_build_query( $query_args ));
 	}
-	
+
 	public function get_edit_content_type_url($content_type, $query_args = array())
 	{
 		if(!is_array($query_args))
@@ -320,7 +322,7 @@ class Dynamic_Content_Builder
 		$query_args['content_type'] = $content_type;
 		return($this->get_manage_content_types_url($query_args));
 	}
-	
+
 	public function update_content_handler($updated_content_handler, $save = true)
 	{
 		if(!is_a($updated_content_handler, 'Dynamic_Content_Handler'))
@@ -335,15 +337,19 @@ class Dynamic_Content_Builder
 		if($save)	$this->save_content_types();
 		return $updated_content_handler->get_content_type();
 	}
-	
+
 	public function save_content_types()
 	{
-		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $this->content_handlers);
+		$content_handlers = array();
+		foreach($this->content_handlers as $post_type => $content_handler) {
+			$content_handlers[$post_type] = $content_handler->get_settings();
+		}
+		update_option(self::DYNAMIC_CONTENT_TYPES_KEY, $content_handlers);
 		//deleting the option so that rewrite rules get flushed on next request
 		//flushing them here would include the old rules
 		delete_option('installed_post_types');
 	}
-	
+
 	/**
 	 * Adds the content handler to the dynamic content type system.
 	 * @todo look ito potential issues with multiple users updating this at once
@@ -370,7 +376,7 @@ class Dynamic_Content_Builder
 		if($save)	$this->save_content_types();
 		return $new_content_handler->get_content_type();
 	}
-	
+
 	public function remove_content_handler($content_type, $save = true)
 	{
 		if(isset($this->content_handlers[$content_type]))
@@ -381,7 +387,7 @@ class Dynamic_Content_Builder
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Initializes all dynamic content handlers and runs
 	 * each handlers on_setup_custom_content() method
@@ -397,13 +403,13 @@ class Dynamic_Content_Builder
 				$dc_handler->on_setup_custom_content();
 			}
 		}
-		
+
 		do_action('register_metabox_handlers');
 	}
-	
+
 	/**
 	 * Returns saved content types value
-	 * 
+	 *
 	 * @return array
 	 *
 	 */
@@ -411,15 +417,23 @@ class Dynamic_Content_Builder
 	{
 		if(!isset($this->content_handlers))
 		{
-			$this->content_handlers = get_option('cms-press-custom-content-handlers');
-			if(!is_array($this->content_handlers))
-			{
-				$this->content_handlers = array();
+			$content_handlers = get_option(self::DYNAMIC_CONTENT_TYPES_KEY );
+			if(!$content_handlers) $content_handlers = array();
+			$this->content_handlers = array();
+
+			foreach($content_handlers as $post_type => $handler) {
+				$handler = (array) $handler;
+				if(isset($handler['' . "\0" . 'Dynamic_Content_Handler' . "\0" . 'settings'])) {
+					//import old saved format
+					$this->content_handlers[$post_type] = new Dynamic_Content_Handler($post_type, $handler['' . "\0" . 'Dynamic_Content_Handler' . "\0" . 'settings']);
+				} else {
+					$this->content_handlers[$post_type] = new Dynamic_Content_Handler($post_type, $handler);
+				}
 			}
 		}
 		return $this->content_handlers;
 	}
-	
+
 	/**
 	 * Adds menu items to admin
 	 *
@@ -429,11 +443,11 @@ class Dynamic_Content_Builder
 		add_menu_page(__('CMS Press'), __('CMS Press'), 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
 		$hook = add_submenu_page('cms-press/manage-content-types', __('Edit Content Types'), 'Edit Content Types', 'manage_content_types', 'cms-press/manage-content-types', array($this, 'manage_content_types_page'));
 		add_action('load-'.$hook, array($this, 'on_load_manage_content_types_page'));
-		
+
 		$hook = add_submenu_page('cms-press/manage-content-types', 'Add Content Type', 'Add Content Type', 'manage_content_types', 'cms-press/add-content-type', array($this, 'add_content_type_page'));
 		add_action('load-'.$hook, array($this, 'on_load_add_content_type_page'));
 	}
-	
+
 	/**
 	 * Returns the column headers for the dynamic content types
 	 *
@@ -449,7 +463,7 @@ class Dynamic_Content_Builder
 		);
 		return $column_headers;
 	}
-	
+
 	/**
 	 * Handles adding of content_types before any content is rendered.
 	 *
@@ -483,7 +497,7 @@ class Dynamic_Content_Builder
 							wp_redirect($this->get_edit_content_type_url($content_type, array('notice'=>$notice)));
 							exit();
 						}
-						else 
+						else
 						{
 							$_REQUEST['notice'] = $content_type->get_error_message();
 						}
@@ -492,7 +506,7 @@ class Dynamic_Content_Builder
 				break;
 		}
 	}
-	
+
 	/**
 	 * Renders page for adding new content types
 	 * @todo integrate error messages
@@ -508,7 +522,7 @@ class Dynamic_Content_Builder
 		<div class="wrap">
 			<?php screen_icon('content_type'); ?>
 			<h2>
-				<?php _e("Add New Content Type"); ?> 
+				<?php _e("Add New Content Type"); ?>
 			</h2>
 			<?php
 			$content_type = '';
@@ -522,7 +536,7 @@ class Dynamic_Content_Builder
 		</div>
 		<?php
 	}
-	
+
 	/**
 	 * Handles updates to content types before page is rendered
 	 *
@@ -577,7 +591,7 @@ class Dynamic_Content_Builder
 						$this->remove_content_handler($content_type);
 						$notice = sprintf("The content type '{$content_type}' has been deleted");
 					}
-					else 
+					else
 					{
 						$notice = "Invalid content type";
 					}
@@ -587,7 +601,7 @@ class Dynamic_Content_Builder
 				break;
 		}
 	}
-	
+
 	/**
 	 * Renders the form for editing a content type
 	 *
@@ -605,7 +619,7 @@ class Dynamic_Content_Builder
 			$perma_identifier = $content_handler->get_content_type();
 			if(!$add) $permalink_warnings[] = __("Warning: Content Type Identifier should not be empty.");
 		}
-		else 
+		else
 		{
 			$perma_identifier = $permastructure['identifier'];
 		}
@@ -613,7 +627,7 @@ class Dynamic_Content_Builder
 		{
 			$perma_structure = '%identifier%'.get_option('permalink_structure');
 		}
-		else 
+		else
 		{
 			$perma_structure = $permastructure['structure'];
 			if(!$add && false === strpos($perma_structure, '%identifier%'))
@@ -626,13 +640,13 @@ class Dynamic_Content_Builder
 			}
 		}
 		?>
-		<?php if(count($permalink_warnings)) : ?>
+		<?php if(isset($permalink_warnings) && count($permalink_warnings)) : ?>
 			<?php foreach($permalink_warnings as $permalink_warning) :?>
 				<?php if(!empty($_REQUEST['notice'])): ?>
 				<div class="updated"><p><strong><?php echo stripslashes($permalink_warning)?></strong></div>
-			<?php endif; ?>	
+			<?php endif; ?>
 			<?php endforeach; ?>
-		<?php endif;?>		
+		<?php endif;?>
 		<form method="post" action="<?php $this->get_edit_content_type_url($content_handler->get_content_type())?>">
 			<?php if($add) : ?>
 				<input type="hidden" name="action" value="add_content_type" />
@@ -675,7 +689,7 @@ class Dynamic_Content_Builder
 						<span class="description"><?php _e('This should almost always be Yes.')?></span>
 					</td>
 				</tr>
-				<?php /* @todo leaving these out for now 
+				<?php /* @todo leaving these out for now
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Hierarchical?'); ?></th>
 					<td>
@@ -740,7 +754,7 @@ class Dynamic_Content_Builder
 						<span class="description"><?php _e('This will be custom URL structure for this content type. These follow WP\'s normal <a href="http://codex.wordpress.org/Using_Permalinks">permalink tags</a>, but must also include the content type \'%identifier%\'.')?></span>
 						<br />
 						<span class="description">
-						Allowed tags: %year%, %monthnum%, %day%, %hour%, %minute%, %second%, %postname%, %post_id%, 
+						Allowed tags: %year%, %monthnum%, %day%, %hour%, %minute%, %second%, %postname%, %post_id%,
 						</span>
 					</td>
 				</tr>
@@ -767,7 +781,7 @@ class Dynamic_Content_Builder
 		</form>
 		<?php
 	}
-	
+
 	/**
 	 * Prints manage row for dynamic content handler
 	 *
@@ -778,7 +792,7 @@ class Dynamic_Content_Builder
 	public function dynamic_content_row($content_type_obj, $style)
 	{
 		$checkbox = "<input type='checkbox' name='content_handlers[]' id='content_handler_{$content_type_obj->get_content_type()}' value='{$content_type_obj->get_content_type()}' />";
-		
+
 		$r = "<tr id='content_type-{$content_type_obj->get_content_type()}'$style>";
 		$columns = get_column_headers('dynamic_content');
 		$hidden = get_hidden_columns('dynamic_content');
@@ -795,8 +809,8 @@ class Dynamic_Content_Builder
 					break;
 				case 'content_type':
 					$r .= sprintf('<td %s>%s<br /><div class="row-actions"><span class="edit"><a href="%s">Edit</a> | </span><span class="delete"><a href="%s" class="submitdelete">Delete</a></span></div></td>',
-						$attributes, 
-						$content_type_obj->get_content_type(), 
+						$attributes,
+						$content_type_obj->get_content_type(),
 						$this->get_edit_content_type_url($content_type_obj->get_content_type()),
 						wp_nonce_url($this->get_manage_content_types_url(array('action'=>'delete', 'content_type'=>$content_type_obj->get_content_type())), 'delete_content_type'));
 					break;
@@ -812,19 +826,19 @@ class Dynamic_Content_Builder
 		$r .= '</tr>';
 		return $r;
 	}
-	
+
 	public function manage_content_types_page()
 	{
 		if(isset($_REQUEST['content_type']))
 		{
 			$this->do_edit_content_type_page();
 		}
-		else 
+		else
 		{
 			$this->do_manage_content_types_page();
 		}
 	}
-	
+
 	private function do_edit_content_type_page()
 	{
 		$content_handler = false;
@@ -833,7 +847,7 @@ class Dynamic_Content_Builder
 			$content_type = $_REQUEST['content_type'];
 			$content_handler = $this->get_content_handler($content_type);
 		}
-		else 
+		else
 		{
 			throw new Exception("An error has occurred.");
 		}
@@ -841,13 +855,13 @@ class Dynamic_Content_Builder
 		<div class="wrap">
 			<?php screen_icon('content_type'); ?>
 			<h2>
-				<?php printf(__("Edit Content Type '%s'"), $content_handler->get_type_label()); ?>  
+				<?php printf(__("Edit Content Type '%s'"), $content_handler->get_type_label()); ?>
 			</h2>
 			<?php	$this->edit_content_type_form($content_handler, false); ?>
 		</div>
 		<?php
 	}
-	
+
 	private function do_manage_content_types_page()
 	{
 		$content_types = $this->get_content_handlers();
@@ -855,12 +869,12 @@ class Dynamic_Content_Builder
 		<div class="wrap">
 			<?php screen_icon('content_type'); ?>
 			<h2>
-				<?php _e("Edit Content Types"); ?>  
-				<a href="<?php echo $this->get_add_content_type_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a> 
+				<?php _e("Edit Content Types"); ?>
+				<a href="<?php echo $this->get_add_content_type_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a>
 			</h2>
 			<?php if(!empty($_REQUEST['notice'])): ?>
 				<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
-			<?php endif; ?>			
+			<?php endif; ?>
 			<?php if(count($content_types)) :?>
 				<form id="posts-filter" action="<?php $this->get_manage_content_types_url()?>" method="post">
 					<div class="tablenav">
@@ -911,5 +925,5 @@ class Dynamic_Content_Builder
 		<br class="clear" />
 		<?php
 	}
-	
+
 }

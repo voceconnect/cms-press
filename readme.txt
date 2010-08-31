@@ -10,7 +10,7 @@ Adds ability to create custom content types (post_types) and taxonomies to your 
 
 == Description ==
 
-CMS Press opens up the ability to create and manage custom content types and taxonomies for your WordPress site.   
+CMS Press opens up the ability to create and manage custom content types and taxonomies for your WordPress site.
 It adds the flexibility to have more than just posts and pages for content by allowing the user to register their
 own post_types that can use their separate theming from the post and page template along with its own permalink structure.
 
@@ -27,7 +27,7 @@ custom taxonomies, a user can tag or categorize content separate from the defaul
 = Why would I need this plugin? =
 
 For most sites, having posts and pages and categories and tags will be enough to do everything the user wants.  However, there are some
-sites that need the content to be further separated.  
+sites that need the content to be further separated.
 
 = What if I'm running WordPress v2.8.6 or below? =
 
@@ -40,6 +40,9 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.1.7 =
+* fixing issue with loading of dynamic content types from caching before class is defined
+* fixed is_searchable return for dynamic content types to always be boolean
 = 0.1.6 =
 * fixed bug with reversing of plural and singular label
 = 0.1.5 =
@@ -56,7 +59,7 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 * added warnings against use of tag or category
 = 0.1.2 =
 * updated activation hook to allow symlinking of plugin
-* fixed issue with non queryable post types from correctly listing posts 
+* fixed issue with non queryable post types from correctly listing posts
 * code cleanup
 * fixed issue with post_types with dashes getting incorrect screen meta
 * corrected preview handling

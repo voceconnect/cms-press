@@ -9,13 +9,13 @@ Plugin Name: CMS Press
 Plugin URI: http://vocecommunications.com/services/web-development/wordpress/plugins/cms-press/
 Description: Adds ability to create custom post_types and taxonomies
 Author: Michael Pretty (prettyboymp)
-Version: 0.1.6
+Version: 0.1.7
 Author URI: http://voceconnect.com
 */
 
 /*  Copyright 2010 Voce Communications
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
