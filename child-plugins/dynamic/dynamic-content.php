@@ -119,7 +119,7 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 
 	public function get_type_exclude_from_search()
 	{
-		return $this->get_setting('exclude_from_search', false);
+		return (bool) $this->get_setting('exclude_from_search', false);
 	}
 
 	/**
