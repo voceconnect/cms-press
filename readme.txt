@@ -40,6 +40,8 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.2.0 =
+* fixed bug with last update
 = 0.1.9 =
 * fixed issue with loading dynamic taxonomies with object cache on
 = 0.1.8 =
