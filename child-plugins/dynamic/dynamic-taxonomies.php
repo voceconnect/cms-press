@@ -275,7 +275,7 @@ class Dynamic_Taxonomy_Builder
 		global $wp_rewrite;
 		$taxonomies = array();
 		foreach($this->taxonomies as $taxonomy_handler) {
-			$taxonomies[$taxonomy_handler->get_taxonomy_name()] = $taxonomy_handler->get_settings();
+			$taxonomies[$taxonomy_handler->get_taxonomy_name()] = array('object_types' => $taxonomy_handler->get_object_types(), 'settings' => $taxonomy_handler->get_settings());
 		}
 		update_option(self::DYNAMIC_TAXONOMIES_KEY, $taxonomies);
 		$wp_rewrite->flush_rules();
