@@ -3,28 +3,28 @@
  * Wrapper class for the dynamic taxonomy data instances
  *
  */
-class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base 
+class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 {
 	private $taxonomy_name;
 	private $object_types;
 	private $settings;
-		
+
 	public function __construct($taxonomy_name = '', $object_types = array('post'), $settings = array())
 	{
 		$this->taxonomy_name = sanitize_user(strtolower($taxonomy_name));
-		
+
 		$this->object_types = (array) $object_types;
-		
+
 	 	$default_settings = array(
 	 		'label' => $taxonomy_name,
 	 		'label_plural' => $taxonomy_name,
-	 		'hierarchical' => false, 
-	 		'update_count_callback' => false, 
-	 		'rewrite' => true, 
+	 		'hierarchical' => false,
+	 		'update_count_callback' => false,
+	 		'rewrite' => true,
 	 		'query_var' => true
 		);
 		$this->settings = array();
-		foreach($default_settings as $name => $default) 
+		foreach($default_settings as $name => $default)
 		{
 			if ( !empty($settings[$name]) )
 				$this->settings[$name] = $settings[$name];
@@ -33,7 +33,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 		}
 		parent::__construct();
 	}
-	
+
 	/**
 	 * Place holder function to be used in future releases that may need to translate deprecated features.
 	 *
@@ -42,17 +42,17 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	{
 		parent::__construct();
 	}
-	
+
 	public function get_object_types()
 	{
 		return $this->object_types;
 	}
-	
+
 	public function get_settings()
 	{
 		return $this->settings;
 	}
-	
+
 	/**
 	 * Returns the setting if set/else the default
 	 *
@@ -68,7 +68,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Returns the name of the taxonomy
 	 *
@@ -78,7 +78,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	{
 		return $this->taxonomy_name;
 	}
-	
+
 	/**
 	 * Returns the label of the taxonomy
 	 *
@@ -88,7 +88,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	{
 		return $this->get_setting('label', $this->get_taxonomy_name());
 	}
-	
+
 	/**
 	 * Returns the plural form of the taxonomy label
 	 *
@@ -113,7 +113,7 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 	{
 		return $this->get_setting('query_var', true);
 	}
-	
+
 	public function supports_post_type($post_type)
 	{
 		return in_array($post_type, $this->object_types);
@@ -123,28 +123,28 @@ class Dynamic_Taxonomy_Handler extends CP_Custom_Taxonomy_Base
 class Dynamic_Taxonomy_Builder
 {
 	const DYNAMIC_TAXONOMIES_KEY = 'cms_press_dynamic_taxonomies';
-	
+
 	/**
 	 * Singleton instance of content builder
 	 *
 	 * @var Dynamic_Taxonomy_Builder
 	 */
 	private static $instance;
-	
+
 	/**
 	 * Array of saved taxonomies and settings
 	 *
 	 * @var array of Dynamic Content Handlers
 	 */
 	private $taxonomies;
-	
+
 	public static function Initialize()
 	{
 		$instance = self::GetInstance();
 		add_action('admin_menu', array($instance, 'add_admin_menu'));
 		add_filter('manage_dynamic_taxonomy_columns', array($instance, 'manage_dynamic_taxonomy_columns'));
 	}
-	
+
 	/**
 	 * Returns the singleton instance of the Dynamic_Taxonomy_Builder
 	 *
@@ -158,18 +158,28 @@ class Dynamic_Taxonomy_Builder
 		}
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Constructor method set to private so that only one instance
 	 * can be created from the Dynamic_Taxonomy_Builder::GetInstance() method
 	 *
 	 */
-	private function __construct() 
+	private function __construct()
 	{
-		$this->taxonomies = get_option(self::DYNAMIC_TAXONOMIES_KEY );
-		if(!$this->taxonomies) $this->taxonomies = array();
+		$taxonomies = get_option(self::DYNAMIC_TAXONOMIES_KEY );
+		if(!$taxonomies) {
+			$this->taxonomies = array();
+		} else {
+			foreach($taxonomies as $taxonomy_name => $taxonomy_info) {
+				if(is_array($taxonomy_info)) {
+					$this->taxonomies[$taxonomy_name] = new Dynamic_Taxonomy_Handler($taxonomy_name, $taxonomy_info['object_types'], $taxonomy_info['settings']);
+				} elseif(is_a($taxonomy_info, 'Dynamic_Taxonomy_Handler')) {
+					$this->taxonomies[$taxonomy_info->get_taxonomy_name()] = $taxonomy_info;
+				}
+			}
+		}
 	}
-	
+
 	/**
 	 * Returns taxonomy for the given taxonomy
 	 *
@@ -184,7 +194,7 @@ class Dynamic_Taxonomy_Builder
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns the url to the manage taxonomies page
 	 *
@@ -200,7 +210,7 @@ class Dynamic_Taxonomy_Builder
 		$query_args['page'] = 'cms-press/manage-taxonomies';
 		return admin_url('admin.php?'.http_build_query( $query_args ));
 	}
-	
+
 	/**
 	 * Returns the url to the add taxonomy page
 	 *
@@ -216,7 +226,7 @@ class Dynamic_Taxonomy_Builder
 		$query_args['page'] = 'cms-press/add-taxonomy';
 		return admin_url('admin.php?'.http_build_query( $query_args ));
 	}
-	
+
 	/**
 	 * Returns the edit taxonomy page url
 	 *
@@ -233,7 +243,7 @@ class Dynamic_Taxonomy_Builder
 		$query_args['taxonomy'] = $taxonomy_name;
 		return($this->get_manage_taxonomies_url($query_args));
 	}
-	
+
 	/**
 	 * Updates the passed in taxonomy, adds it if a taxonomy with that name does not exist
 	 *
@@ -255,7 +265,7 @@ class Dynamic_Taxonomy_Builder
 		if($save)	$this->save_taxonomies();
 		return $updated_taxonomy->get_taxonomy_name();
 	}
-	
+
 	/**
 	 * Saves the dynamic taxonomies to the database
 	 *
@@ -263,10 +273,14 @@ class Dynamic_Taxonomy_Builder
 	public function save_taxonomies()
 	{
 		global $wp_rewrite;
-		update_option(self::DYNAMIC_TAXONOMIES_KEY, $this->taxonomies);
+		$taxonomies = array();
+		foreach($this->taxonomies as $taxonomy_handler) {
+			$taxonomies[$taxonomy_handler->get_taxonomy_name()] = $taxonomy_handler->get_settings();
+		}
+		update_option(self::DYNAMIC_TAXONOMIES_KEY, $taxonomies);
 		$wp_rewrite->flush_rules();
 	}
-	
+
 	/**
 	 * Adds the taxonomy to the dynamic taxonomy system.
 	 *
@@ -292,7 +306,7 @@ class Dynamic_Taxonomy_Builder
 		if($save)	$this->save_taxonomies();
 		return $new_taxonomy->get_taxonomy_name();
 	}
-	
+
 	/**
 	 * Deletes the taxonomy from the system
 	 *
@@ -310,10 +324,10 @@ class Dynamic_Taxonomy_Builder
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns saved taxonomies value
-	 * 
+	 *
 	 * @return array
 	 *
 	 */
@@ -321,7 +335,7 @@ class Dynamic_Taxonomy_Builder
 	{
 		return $this->taxonomies;
 	}
-	
+
 	/**
 	 * Adds items to menu
 	 *
@@ -330,22 +344,22 @@ class Dynamic_Taxonomy_Builder
 	{
 		$hook = add_submenu_page('cms-press/manage-content-types', __('Edit Taxonomies'), __('Edit Taxonomies'), 'manage_taxonomies', 'cms-press/manage-taxonomies', array($this, 'manage_taxonomies_page'));
 		add_action('load-'.$hook, array($this, 'on_load_manage_taxonomies_page'));
-		
+
 		$hook = add_submenu_page('cms-press/manage-content-types', 'Add Taxonomy', 'Add Taxonomy', 'manage_taxonomies', 'cms-press/add-taxonomy', array($this, 'add_taxonomy_page'));
 		add_action('load-'.$hook, array($this, 'on_load_add_taxonomy_page'));
 	}
-	
+
 	public function manage_dynamic_taxonomy_columns($column_headers)
 	{
 		$column_headers = array(
 			'cb' => '<input type="checkbox" />',
 			'taxonomy' => __('Taxonomy'),
 			'label' => __('Label'),
-			'object_types' => ('Object Types'),			
+			'object_types' => ('Object Types'),
 		);
 		return $column_headers;
 	}
-	
+
 	public function on_load_add_taxonomy_page()
 	{
 		if(!current_user_can('manage_taxonomies'))
@@ -371,7 +385,7 @@ class Dynamic_Taxonomy_Builder
 							wp_redirect($this->get_edit_taxonomy_url($taxonomy_name, array('notice'=> "The taxonomomy '$taxonomy_name' has been created")));
 							exit();
 						}
-						else 
+						else
 						{
 							$_REQUEST['notice'] = $taxonomy_name->get_error_message();
 						}
@@ -380,7 +394,7 @@ class Dynamic_Taxonomy_Builder
 				break;
 		}
 	}
-	
+
 	public function on_load_manage_taxonomies_page()
 	{
 		if(!current_user_can('manage_taxonomies'))
@@ -434,7 +448,7 @@ class Dynamic_Taxonomy_Builder
 						$this->remove_taxonomy($taxonomy_name);
 						$notice = sprintf("The taxonomy '{$taxonomy_name}' has been deleted");
 					}
-					else 
+					else
 					{
 						$notice = "Invalid taxonomy";
 					}
@@ -444,7 +458,7 @@ class Dynamic_Taxonomy_Builder
 				break;
 		}
 	}
-	
+
 	/**
 	 * Renders page for adding new taxonomies
 	 * @todo integrate error messages
@@ -460,7 +474,7 @@ class Dynamic_Taxonomy_Builder
 		<div class="wrap">
 			<?php screen_icon('taxonomy'); ?>
 			<h2>
-				<?php _e("Add New Taxonomy"); ?> 
+				<?php _e("Add New Taxonomy"); ?>
 			</h2>
 			<?php
 			$taxonomy_name = '';
@@ -474,7 +488,7 @@ class Dynamic_Taxonomy_Builder
 		</div>
 		<?php
 	}
-	
+
 	/**
 	 * Form for editing a taxonomy
 	 *
@@ -485,7 +499,7 @@ class Dynamic_Taxonomy_Builder
 		?>
 		<?php if(!empty($_REQUEST['notice'])): ?>
 			<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
-		<?php endif; ?>		
+		<?php endif; ?>
 		<form method="post" action="<?php $this->get_edit_taxonomy_url($taxonomy->get_taxonomy_name())?>">
 			<?php if($add) : ?>
 				<input type="hidden" name="action" value="add_taxonomy" />
@@ -550,7 +564,7 @@ class Dynamic_Taxonomy_Builder
 		</form>
 		<?php
 	}
-	
+
 	/**
 	 * Prints manage row for dynamic taxonomy
 	 *
@@ -561,7 +575,7 @@ class Dynamic_Taxonomy_Builder
 	public function dynamic_taxonomy_row($taxonomy_obj, $style)
 	{
 		$checkbox = "<input type='checkbox' name='taxonomies[]' id='taxonomy_{$taxonomy_obj->get_taxonomy_name()}' value='{$taxonomy_obj->get_taxonomy_name()}' />";
-		
+
 		$r = "<tr id='taxonomy-{$taxonomy_obj->get_taxonomy_name()}'$style>";
 		$columns = get_column_headers('dynamic_taxonomy');
 		$hidden = get_hidden_columns('dynamic_taxonomy');
@@ -578,8 +592,8 @@ class Dynamic_Taxonomy_Builder
 					break;
 				case 'taxonomy':
 					$r .= sprintf('<td %s>%s<br /><div class="row-actions"><span class="edit"><a href="%s">Edit</a> | </span><span class="delete"><a href="%s" class="submitdelete">Delete</a></span></div></td>',
-						$attributes, 
-						$taxonomy_obj->get_taxonomy_name(), 
+						$attributes,
+						$taxonomy_obj->get_taxonomy_name(),
 						$this->get_edit_taxonomy_url($taxonomy_obj->get_taxonomy_name()),
 						wp_nonce_url($this->get_manage_taxonomies_url(array('action'=>'delete', 'taxonomy'=>$taxonomy_obj->get_taxonomy_name())), 'delete_taxonomy'));
 					break;
@@ -599,19 +613,19 @@ class Dynamic_Taxonomy_Builder
 		$r .= '</tr>';
 		return $r;
 	}
-	
+
 	public function manage_taxonomies_page()
 	{
 		if(isset($_REQUEST['taxonomy']))
 		{
 			$this->do_edit_taxonomy_page();
 		}
-		else 
+		else
 		{
 			$this->do_manage_taxonomies_page();
 		}
 	}
-	
+
 	private function do_edit_taxonomy_page()
 	{
 		$taxonomy = false;
@@ -620,7 +634,7 @@ class Dynamic_Taxonomy_Builder
 			$taxonomy_name = $_REQUEST['taxonomy'];
 			$taxonomy = $this->get_taxonomy($taxonomy_name);
 		}
-		else 
+		else
 		{
 			throw new Exception("An error has occurred.");
 		}
@@ -628,13 +642,13 @@ class Dynamic_Taxonomy_Builder
 		<div class="wrap">
 			<?php screen_icon('taxonomy'); ?>
 			<h2>
-				<?php printf(__("Edit Taxonomy '%s'"), $taxonomy->get_taxonomy_label()); ?>  
+				<?php printf(__("Edit Taxonomy '%s'"), $taxonomy->get_taxonomy_label()); ?>
 			</h2>
 			<?php	$this->edit_taxonomy_form($taxonomy, false); ?>
 		</div>
 		<?php
 	}
-	
+
 	private function do_manage_taxonomies_page()
 	{
 		$taxonomy_names = $this->get_taxonomies();
@@ -642,13 +656,13 @@ class Dynamic_Taxonomy_Builder
 		<div class="wrap">
 			<?php screen_icon('taxonomy'); ?>
 			<h2>
-				<?php _e("Edit Taxonomies"); ?>  
-				<a href="<?php echo $this->get_add_taxonomy_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a> 
+				<?php _e("Edit Taxonomies"); ?>
+				<a href="<?php echo $this->get_add_taxonomy_url();?>" class="button add-new-h2"><?php _e('Add New'); ?></a>
 			</h2>
 			<?php if(!empty($_REQUEST['notice'])): ?>
 				<div id="message" class="updated fade"><p><strong><?php echo stripslashes($_REQUEST['notice'])?></strong></div>
-			<?php endif; ?>		
-			<?php if(count($taxonomy_names)) : ?>	
+			<?php endif; ?>
+			<?php if(count($taxonomy_names)) : ?>
 				<form id="posts-filter" action="<?php $this->get_manage_taxonomies_url()?>" method="post">
 					<div class="tablenav">
 						<div class="alignleft actions">
