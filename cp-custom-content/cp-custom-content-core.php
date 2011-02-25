@@ -32,7 +32,7 @@ class CP_Custom_Content_Core
 		}
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Initializes the plugin
 	 * calls 'setup_custom_content' //used for registering content types
@@ -51,9 +51,9 @@ class CP_Custom_Content_Core
 			add_filter('get_edit_post_link', array($instance, 'get_edit_post_link'), 10, 3);
 			add_filter('map_meta_cap', array($instance, 'map_meta_cap'), 10, 4);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Constructor method
 	 *
@@ -78,7 +78,7 @@ class CP_Custom_Content_Core
 
 		if(!count($this->content_handlers))
 			return;
-		
+
 		//check if new post_types were added.
 		$prev_installed_post_types = get_option('installed_post_types');
 		$installed_post_types = array_keys($this->content_handlers);
@@ -87,25 +87,25 @@ class CP_Custom_Content_Core
 		{
 			$has_new_types = true;
 		}
-		
+
 		foreach($this->content_handlers as $handler)
 		{
 			$handler->add_base_hooks();
 			$handler->add_custom_hooks();
-			
+
 			$args = array(
 				'labels' => $handler->get_type_labels(),
-				'publicly_queryable' => $handler->get_type_publicly_queryable(),
-				'exclude_from_search' => $handler->get_type_exclude_from_search(), 
-				'public' => $handler->get_type_is_public(), 
-				'hierarchical'=> $handler->get_type_is_hierarchical(), 
-				'capability_type' => $handler->get_type_capability_type(), 
+				'publicly_queryable' => (bool) $handler->get_type_publicly_queryable(),
+				'exclude_from_search' => $handler->get_type_exclude_from_search(),
+				'public' => (bool) $handler->get_type_is_public(),
+				'hierarchical'=> (bool) $handler->get_type_is_hierarchical(),
+				'capability_type' => $handler->get_type_capability_type(),
 				'supports'=>$handler->get_type_supports(),
 				'rewrite' => $handler->get_type_rewrite(),
 				'query_var' => $handler->get_type_query_var(),
-				'show_ui' => $handler->get_type_show_ui()
+				'show_ui' => (bool) $handler->get_type_show_ui()
 			);
-				
+
 			if($edit_link = $handler->get_type_edit_link())
 			{
 				$args['_edit_link'] = $edit_link;
@@ -116,19 +116,19 @@ class CP_Custom_Content_Core
 				$handler->add_rewrite_rules();
 			}
 		}
-		
+
 		if(version_compare(get_wp_version(), '3.0-dev', '<'))
 		{
 			add_filter('query_vars', array($this, 'query_vars'), 10, 1);
 			add_action('parse_request', array($this, 'parse_request'), 10, 1);
 		}
-		
+
 		//template handling
 		/**
 		 * @todo remove if http://core.trac.wordpress.org/attachment/ticket/9674/9674.18.diff is merged
 		 */
 		add_filter("single_template", array($this, 'single_template'), 10, 1);
-		
+
 		add_filter("date_template", array($this, 'date_template'), 10, 1);
 		add_filter("search_template", array($this, 'search_template'), 10, 1);
 
@@ -161,7 +161,7 @@ class CP_Custom_Content_Core
 		}
 
 		$this->content_handlers [$handler->get_content_type()] = $handler;
-			
+
 		return true;
 	}
 
@@ -179,12 +179,12 @@ class CP_Custom_Content_Core
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Tries to rewrite single.php template to {post_type}.php
 	 *
 	 * @todo deprecated if http://core.trac.wordpress.org/attachment/ticket/9674/9674.18.diff is merged
-	 * 
+	 *
 	 * @param string $template
 	 * @return string
 	 */
@@ -221,7 +221,7 @@ class CP_Custom_Content_Core
 			return $replacement_template;
 		return $template;
 	}
-	
+
 	public function index_template($template)
 	{
 		if( $replacement_template = get_query_template('index-'.get_query_var('post_type')) )
@@ -236,16 +236,16 @@ class CP_Custom_Content_Core
 			return $replacement_template;
 		return $template;
 	}
-	
+
 	/**
 	 * BEGIN WP 2.9 ONLY METHODS
 	 */
-	
+
 	/**
 	 * Adds the menu items for the registered content types
-	 * 
+	 *
 	 * This is only used by WP 2.9
-	 * 
+	 *
 	 */
 	public function add_menu_items()
 	{
@@ -258,12 +258,12 @@ class CP_Custom_Content_Core
 				$page_hook = add_object_page( $labels->edit_item, $labels['name'], 'edit_pages', basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'), $handler->get_type_icon_url());
 				add_action('load-'.$page_hook, array($handler, 'setup_manage_page'), 10);
 				add_action('load-'.$page_hook, array($handler, 'handle_manage_page_postback'), 1);
-	
+
 				//add add menu and handling
 				add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', $labels['edit_item'], __('Edit'), 'edit_pages',  basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', array($handler, 'manage_content_page'));
 				$page_hook = add_submenu_page(basename(dirname(__FILE__)).'/manage-'.$handler->get_content_type().'.php', $labels['add_item'], __('Add New'), 'edit_pages',  basename(dirname(__FILE__)).'/add-'.$handler->get_content_type().'.php', array($handler, 'add_content_page'));
 				add_action('load-'.$page_hook, array($handler, 'setup_add_page'));
-				
+
 				//fix for 2.9 where it blindly replaces '-add' and '-new' in the screen handling.
 				$post_type = $handler->get_content_type();
 				if(0 === strpos($post_type, 'add') || 0 === strpos($post_type, 'new'))
@@ -277,12 +277,12 @@ class CP_Custom_Content_Core
 			}
 		}
 	}
-	
+
 	public function screen_fix_filter($columns)
 	{
 		return wp_manage_pages_columns();
 	}
-	
+
 	/**
 	 * Returns the admin url for creating a new custom content item of the given post_type
 	 *
@@ -385,7 +385,7 @@ class CP_Custom_Content_Core
 		}
 		die(0);
 	}
-	
+
 	/**
 	 * generates nonces for autosaving custom post_types
 	 *
@@ -403,7 +403,7 @@ class CP_Custom_Content_Core
 			}
 		}
 	}
-	
+
 	/**
 	 * Prints the manage rows for the content type
 	 *
@@ -419,7 +419,7 @@ class CP_Custom_Content_Core
 			$handler->manage_rows($posts, $pagenum, $per_page);
 		}
 	}
-	
+
 	public function map_meta_cap($caps, $cap, $user_id, $args)
 	{
 		$content_types = array_keys($this->content_handlers);
@@ -434,7 +434,7 @@ class CP_Custom_Content_Core
 		}
 		return $caps;
 	}
-	
+
 	/**
 	 * Adds post_type query_var
 	 *
@@ -449,7 +449,7 @@ class CP_Custom_Content_Core
 		}
 		return $query_vars;
 	}
-	
+
 	/**
 	 * Limits the post_type in the query_vars to ones that should be publicly queryable
 	 *
@@ -465,7 +465,7 @@ class CP_Custom_Content_Core
 			}
 		}
 	}
-	
+
 	/**
 	 * END WP 2.9 ONLY METHODS
 	 */
