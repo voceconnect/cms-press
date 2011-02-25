@@ -40,6 +40,8 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.2.2 =
+* made default visibility of taxonomies true
 = 0.2.1 =
 * fixed boolean requirement for show_ui argument of post type registration
 = 0.2.0 =

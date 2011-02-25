@@ -1,6 +1,6 @@
 <?php
 
-abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy 
+abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 {
 	/**
 	 * Array of associated post_types
@@ -33,7 +33,7 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 	{
 		return false;
 	}
-	
+
 	/**
 	 * Returns whether the taxonomy should show the UI
 	 *
@@ -41,32 +41,32 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 	 */
 	public function get_taxonomy_show_ui()
 	{
-		return null;
+		return true;
 	}
-	
+
 	public function get_taxonomy_manage_cap()
 	{
 		return null;
 	}
-	
+
 	public function get_taxonomy_edit_cap()
 	{
 		return null;
 	}
-	
+
 	public function get_taxonomy_delete_cap()
 	{
 		return null;
 	}
-	
+
 	public function get_taxonomy_assign_cap()
 	{
 		return null;
 	}
-	
+
 	/**
 	 * Returns a pointer to the update count callback for the taxonomy
-	 * 
+	 *
 	 * @return mixed  return false to use the default callback
 	 *
 	 */
@@ -84,7 +84,7 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Default action for registering the taxonomy.
 	 *
@@ -97,7 +97,7 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 	/**
 	 * BEGIN WP 2.9 ONLY METHODS
 	 */
-	
+
 	/**
 	 * Registers the managemet pages for the custom taxonomy in wp 2.9
 	 *
@@ -115,7 +115,7 @@ abstract class CP_Custom_Taxonomy_Base implements iCP_Custom_Taxonomy
 		}
 
 	}
-	
+
 	public function add_page_taxonomy_support($page, $context)
 	{
 		if('page' == $page && 'side' == $context)
@@ -153,24 +153,24 @@ interface iCP_Custom_Taxonomy
 	 *
 	 */
 	public function get_taxonomy_label_plural();
-	
+
 	/**
 	 * Returns whether the taxonomy is hierarchical.  Not supported in WP 2.9
 	 *
 	 * @return unknown
 	 */
 	public function get_taxonomy_is_hierarchical();
-	
+
 	/**
 	 * Returns the rewrite for the taxonomy
 	 *
 	 * @return unknown
 	 */
 	public function get_taxonomy_rewrite();
-	
+
 	/**
 	 * Returns a pointer to the update count callback for the taxonomy
-	 * 
+	 *
 	 * @return mixed  return false to use the default callback
 	 *
 	 */
@@ -182,29 +182,29 @@ interface iCP_Custom_Taxonomy
 	 * @return string|bool
 	 */
 	public function get_taxonomy_query_var();
-	
+
 	/**
 	 * Returns whether the taxonomy should show the UI
 	 *
 	 * @return bool|null
 	 */
 	public function get_taxonomy_show_ui();
-	
+
 	public function get_taxonomy_manage_cap();
-		
+
 	public function get_taxonomy_edit_cap();
-	
+
 	public function get_taxonomy_delete_cap();
-	
+
 	public function get_taxonomy_assign_cap();
-	
+
 	/**
 	 * returns the object types this taxonomy is associated with
 	 *
 	 * @return array
 	 */
 	public function get_object_types();
-	
+
 	/**
 	 * Default action for registering the taxonomy.
 	 *
@@ -217,7 +217,7 @@ interface iCP_Custom_Taxonomy
 	 * wp 2.9 only
 	 */
 	public function register_management_page();
-	
+
 	/**
 	 * Adds support for the taxonomy to the edit page
 	 *
