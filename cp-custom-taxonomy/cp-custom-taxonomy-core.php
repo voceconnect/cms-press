@@ -46,7 +46,7 @@ class CP_Custom_Taxonomy_Core
 				'label'=>$handler->get_taxonomy_label_plural(),
 				'query_var'=> $handler->get_taxonomy_query_var(),
 				'rewrite'=>$handler->get_taxonomy_rewrite(),
-				'show_ui' => (bool) $handler->get_taxonomy_show_ui(),
+				'show_ui' => $handler->get_taxonomy_show_ui(),
 				'manage_cap' => $handler->get_taxonomy_manage_cap(),
 				'edit_cap' => $handler->get_taxonomy_edit_cap(),
 				'delete_cap' => $handler->get_taxonomy_delete_cap(),
@@ -54,7 +54,6 @@ class CP_Custom_Taxonomy_Core
 			);
 			if(false !== ($callback = $handler->get_taxonomy_update_count_callback()))
 				$args['update_count_callback'] = $callback;
-
 			register_taxonomy($handler->get_taxonomy_name(), $handler->get_object_types(), $args);
 			if(version_compare(get_wp_version(), '3.0-dev', '<'))
 			{
