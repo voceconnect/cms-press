@@ -3,7 +3,7 @@ Contributors: Michael Pretty
 Donate link: http://voceconnect.com/
 Tags: cms, post types, taxonomies
 Requires at least: 2.9
-Tested up to: 3.0.
+Tested up to: 3.1
 Stable tag: trunk
 
 Adds ability to create custom content types (post_types) and taxonomies to your WordPress installation.
@@ -40,6 +40,8 @@ Versions before v2.9 of WordPress do not support custom post_types, so there is 
 3. Editing a `Game Review` post.
 
 == Changelog ==
+= 0.2.1 =
+* fixed boolean requirement for show_ui argument of post type registration
 = 0.2.0 =
 * fixed bug with last update
 = 0.1.9 =
