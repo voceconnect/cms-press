@@ -95,15 +95,15 @@ class CP_Custom_Content_Core
 
 			$args = array(
 				'labels' => $handler->get_type_labels(),
-				'publicly_queryable' => (bool) $handler->get_type_publicly_queryable(),
-				'exclude_from_search' => $handler->get_type_exclude_from_search(),
-				'public' => (bool) $handler->get_type_is_public(),
-				'hierarchical'=> (bool) $handler->get_type_is_hierarchical(),
+				'publicly_queryable' => (bool)$handler->get_type_publicly_queryable(),
+				'exclude_from_search' => (bool)$handler->get_type_exclude_from_search(),
+				'public' => (bool)$handler->get_type_is_public(),
+				'hierarchical'=> (bool)$handler->get_type_is_hierarchical(),
 				'capability_type' => $handler->get_type_capability_type(),
-				'supports'=>$handler->get_type_supports(),
+				'supports'=> $handler->get_type_supports(),
 				'rewrite' => $handler->get_type_rewrite(),
 				'query_var' => $handler->get_type_query_var(),
-				'show_ui' => (bool) $handler->get_type_show_ui()
+				'show_ui' => (bool)$handler->get_type_show_ui()
 			);
 
 			if($edit_link = $handler->get_type_edit_link())
