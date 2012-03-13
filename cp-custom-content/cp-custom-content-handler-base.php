@@ -966,6 +966,10 @@ interface iCP_Custom_Content_Handler
 	public function get_type_publicly_queryable();
 	
 	public function get_type_show_ui();
+
+	public function get_type_has_archive();
+
+	public function get_type_menu_position();
 	
 	/**
 	 * returns the edit link for the content type

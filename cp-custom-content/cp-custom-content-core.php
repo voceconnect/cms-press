@@ -103,7 +103,9 @@ class CP_Custom_Content_Core
 				'supports'=> $handler->get_type_supports(),
 				'rewrite' => $handler->get_type_rewrite(),
 				'query_var' => $handler->get_type_query_var(),
-				'show_ui' => (bool)$handler->get_type_show_ui()
+				'show_ui' => (bool) $handler->get_type_show_ui(),
+				'has_archive' => (bool) $handler->get_type_has_archive(),
+				'menu_position' => (int) $handler->get_type_menu_position()
 			);
 
 			if($edit_link = $handler->get_type_edit_link())
