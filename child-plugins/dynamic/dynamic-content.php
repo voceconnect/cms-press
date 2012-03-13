@@ -21,7 +21,9 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 			'capability_type' => 'post',
 			'icon_url' => '',
 			'supports' => array('title', 'editor', 'thumbnail', 'author', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions'),
-			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure'))
+			'permastructure' => array('identifier' => $this->content_type, 'structure' => '%identifier%'.get_option('permalink_structure')),
+			'has_archive' => false,
+			'menu_position' => 25
 		);
 
 		$this->settings = array();
@@ -135,6 +137,16 @@ class Dynamic_Content_Handler extends CP_Custom_Content_Handler_Base
 	public function get_type_is_public()
 	{
 		return $this->get_setting('public', true);
+	}
+
+	public function get_type_has_archive()
+	{
+		return $this->get_setting('has_archive', false);
+	}
+
+	public function get_type_menu_position()
+	{
+		return $this->get_setting('menu_position', 25);
 	}
 
 	public function get_type_is_hierarchical()
@@ -689,6 +701,14 @@ class Dynamic_Content_Builder
 						<span class="description"><?php _e('This should almost always be Yes.')?></span>
 					</td>
 				</tr>
+				<tr valign="top">
+					<th scope="row"><label for="menu_position"><?php echo 'menu_position'; ?></label></th>
+					<td>
+						<input type="text" class="regular-text code" id="menu_position" name="menu_position" value="<?php echo esc_attr($content_handler->get_type_menu_position()); ?>" />
+						&nbsp; &nbsp;
+						<span class="description"><?php echo '5 - below Posts 10 - below Media 15 - below Links 20 - below Pages 25 - below comments ';?></span>
+					</td>
+				</tr>
 				<?php /* @todo leaving these out for now
 				<tr valign="top">
 					<th scope="row"><?php _e('Is Hierarchical?'); ?></th>
@@ -734,6 +754,18 @@ class Dynamic_Content_Builder
 						<input type="radio" id="exclude_from_search" name="exclude_from_search" value="0"<?php echo !$content_handler->get_type_exclude_from_search() ? ' checked="checked"' : ''?> />
 						&nbsp; &nbsp;
 						<span class="description"><?php _e('Should this content be excluded in search results?')?></span>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php echo 'has_archive?'; ?></th>
+					<td>
+						<label for="has_archive_yes"><?php echo ('Yes') ?></label>
+						<input type="radio" id="has_archive" name="has_archive" value="1"<?php echo $content_handler->get_type_has_archive() ? ' checked="checked"' : ''?> />
+						&nbsp; &nbsp;
+						<label for="has_archive_no"><?php echo ('No') ?></label>
+						<input type="radio" id="has_archive" name="has_archive" value="0"<?php echo !$content_handler->get_type_has_archive() ? ' checked="checked"' : ''?> />
+						&nbsp; &nbsp;
+						<span class="description"><?php echo 'Use custom_post_type_archives?';?></span>
 					</td>
 				</tr>
 			</table>

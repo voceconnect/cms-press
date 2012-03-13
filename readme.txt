@@ -14,7 +14,7 @@ CMS Press opens up the ability to create and manage custom content types and tax
 It adds the flexibility to have more than just posts and pages for content by allowing the user to register their
 own post_types that can use their separate theming from the post and page template along with its own permalink structure.
 
-Along with custom post_types, CMS Press gives users the also register their own taxonomies.  With the addition of
+Along with custom post_types, CMS Press gives users the ability to register their own taxonomies.  With the addition of
 custom taxonomies, a user can tag or categorize content separate from the default tags and categories.
 
 == Installation ==
