@@ -7,10 +7,11 @@
             "email": "mpretty@voceconnect.com"
         }
     ],
+	"type": "wordpress-plugin",
     "require": {
 
     },
     "autoload": {
-
-    }
+		"files": ["cms-press.php"]
+    },
 }
