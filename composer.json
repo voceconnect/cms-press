@@ -1,0 +1,16 @@
+{
+    "name": "voceconnect/cms-press",
+    "description": "CMS Press",
+    "authors": [
+        {
+            "name": "Mike Pretty",
+            "email": "mpretty@voceconnect.com"
+        }
+    ],
+    "require": {
+
+    },
+    "autoload": {
+
+    }
+}
