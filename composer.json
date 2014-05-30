@@ -13,5 +13,5 @@
     },
     "autoload": {
 		"files": ["cms-press.php"]
-    },
+    }
 }
