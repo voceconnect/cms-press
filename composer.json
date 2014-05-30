@@ -1,0 +1,17 @@
+{
+    "name": "voceconnect/cms-press",
+    "description": "CMS Press",
+    "authors": [
+        {
+            "name": "Mike Pretty",
+            "email": "mpretty@voceconnect.com"
+        }
+    ],
+	"type": "wordpress-plugin",
+    "require": {
+
+    },
+    "autoload": {
+		"files": ["cms-press.php"]
+    }
+}
